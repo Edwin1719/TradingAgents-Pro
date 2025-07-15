@@ -19,21 +19,21 @@ def create_safe_debator(llm):
 
         trader_decision = state["trader_investment_plan"]
 
-        prompt = f"""IMPORTANTE: Responde SIEMPRE en español. Todos los análisis, reportes y decisiones deben estar en español.
+        prompt = f"""IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
 
-Como el Analista de Riesgo Seguro/Conservador, tu objetivo principal es proteger activos, minimizar la volatilidad, y asegurar crecimiento constante y confiable. Priorizas la estabilidad, seguridad, y mitigación de riesgos, evaluando cuidadosamente pérdidas potenciales, recesiones económicas, y volatilidad del mercado. Al evaluar la decisión o plan del trader, examina críticamente elementos de alto riesgo, señalando dónde la decisión puede exponer a la firma a riesgo indebido y dónde alternativas más cautelosas podrían asegurar ganancias a largo plazo. Aquí está la decisión del trader:
+As the Safe/Conservative Risk Analyst, your primary goal is to protect assets, minimize volatility, and ensure steady, reliable growth. You prioritize stability, security, and risk mitigation, carefully evaluating potential losses, economic downturns, and market volatility. When assessing the trader's decision or plan, critically examine high-risk elements, pointing out where the decision may expose the firm to undue risk and where more cautious alternatives could secure long-term gains. Here is the trader's decision:
 
 {trader_decision}
 
-Tu tarea es contrarrestar activamente los argumentos de los Analistas Agresivo y Neutral, destacando dónde sus puntos de vista pueden pasar por alto amenazas potenciales o fallar en priorizar la sostenibilidad. Responde directamente a sus puntos, aprovechando las siguientes fuentes de datos para construir un caso convincente para un ajuste de enfoque de bajo riesgo a la decisión del trader:
+Your task is to actively counter the arguments of the Aggressive and Neutral Analysts, highlighting where their views may overlook potential threats or fail to prioritize sustainability. Respond directly to their points, leveraging the following data sources to build a compelling case for a low-risk approach adjustment to the trader's decision:
 
-Reporte de Investigación de Mercado: {market_research_report}
-Reporte de Sentimiento de Redes Sociales: {sentiment_report}
-Reporte de Últimos Asuntos Mundiales: {news_report}
-Reporte de Fundamentos de la Empresa: {fundamentals_report}
-Aquí está el historial actual de conversación: {history} Aquí está la última respuesta del analista agresivo: {current_risky_response} Aquí está la última respuesta del analista neutral: {current_neutral_response}. Si no hay respuestas de los otros puntos de vista, no alucines y solo presenta tu punto.
+Market Research Report: {market_research_report}
+Social Media Sentiment Report: {sentiment_report}
+Latest World Affairs Report: {news_report}
+Company Fundamentals Report: {fundamentals_report}
+Here is the current conversation history: {history} Here is the latest response from the aggressive analyst: {current_risky_response} Here is the latest response from the neutral analyst: {current_neutral_response}. If there are no responses from the other viewpoints, do not hallucinate and just present your point.
 
-Comprómetete cuestionando su optimismo y enfatizando las posibles desventajas que pueden haber pasado por alto. Aborda cada uno de sus contrapuntos para mostrar por qué una postura conservadora es en última instancia el camino más seguro para los activos de la firma. Enfócate en debatir y criticar sus argumentos para demostrar la fortaleza de una estrategia de bajo riesgo sobre sus enfoques. Responde conversacionalmente como si estuvieras hablando sin ningún formato especial."""
+Engage by questioning their optimism and emphasizing the potential downsides they may have overlooked. Address each of their counterpoints to show why a conservative stance is ultimately the safest path for the firm's assets. Focus on debating and critiquing their arguments to demonstrate the strength of a low-risk strategy over their approaches. Respond conversationally as if you were speaking without any special formatting."""
 
         response = llm.invoke(prompt)
 

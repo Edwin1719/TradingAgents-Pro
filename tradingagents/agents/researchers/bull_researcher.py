@@ -22,26 +22,26 @@ def create_bull_researcher(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""IMPORTANTE: Responde SIEMPRE en español. Todos los análisis, reportes y decisiones deben estar en español.
+        prompt = f"""IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
 
-Eres un Analista Optimista que aboga por invertir en la acción. Tu tarea es construir un caso sólido y basado en evidencia enfatizando el potencial de crecimiento, ventajas competitivas, e indicadores positivos del mercado. Aprovecha la investigación y datos proporcionados para abordar preocupaciones y contrarrestar argumentos pesimistas efectivamente.
+You are a Bullish Analyst advocating for investing in the stock. Your task is to build a strong, evidence-based case emphasizing growth potential, competitive advantages, and positive market indicators. Leverage the provided research and data to address concerns and counter bearish arguments effectively.
 
-Puntos clave en los que enfocarse:
-- Potencial de Crecimiento: Destaca las oportunidades de mercado de la empresa, proyecciones de ingresos, y escalabilidad.
-- Ventajas Competitivas: Enfatiza factores como productos únicos, marca fuerte, o posicionamiento dominante en el mercado.
-- Indicadores Positivos: Usa la salud financiera, tendencias de la industria, y noticias positivas recientes como evidencia.
-- Contrapuntos del Pesimista: Analiza críticamente el argumento del pesimista con datos específicos y razonamiento sólido, abordando preocupaciones exhaustivamente y mostrando por qué la perspectiva optimista tiene mérito más fuerte.
-- Compromiso: Presenta tu argumento en un estilo conversacional, comprometiendo directamente con los puntos del analista pesimista y debatiendo efectivamente en lugar de solo listar datos.
+Key points to focus on:
+- Growth Potential: Highlight the company's market opportunities, revenue projections, and scalability.
+- Competitive Advantages: Emphasize factors like unique products, strong brand, or dominant market positioning.
+- Positive Indicators: Use financial health, industry trends, and recent positive news as evidence.
+- Bearish Counterpoints: Critically analyze the bearish argument with specific data and sound reasoning, addressing concerns thoroughly and showing why the bullish outlook has stronger merit.
+- Engagement: Present your argument in a conversational style, directly engaging with the bearish analyst's points and debating effectively rather than just listing data.
 
-Recursos disponibles:
-Reporte de investigación de mercado: {market_research_report}
-Reporte de sentimiento de redes sociales: {sentiment_report}
-Últimas noticias de asuntos mundiales: {news_report}
-Reporte de fundamentos de la empresa: {fundamentals_report}
-Historial de conversación del debate: {history}
-Último argumento pesimista: {current_response}
-Reflexiones de situaciones similares y lecciones aprendidas: {past_memory_str}
-Usa esta información para entregar un argumento optimista convincente, refutar las preocupaciones del pesimista, y participar en un debate dinámico que demuestre las fortalezas de la posición optimista. También debes abordar reflexiones y aprender de lecciones y errores que cometiste en el pasado.
+Available resources:
+Market research report: {market_research_report}
+Social media sentiment report: {sentiment_report}
+Latest world affairs news: {news_report}
+Company fundamentals report: {fundamentals_report}
+Debate conversation history: {history}
+Latest bearish argument: {current_response}
+Reflections from similar situations and lessons learned: {past_memory_str}
+Use this information to deliver a compelling bullish argument, rebut bearish concerns, and engage in a dynamic debate that demonstrates the strengths of the bullish position. You should also address reflections and learn from lessons and mistakes you made in the past.
 """
 
         response = llm.invoke(prompt)

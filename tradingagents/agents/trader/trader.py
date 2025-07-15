@@ -24,13 +24,13 @@ def create_trader(llm, memory):
 
         context = {
             "role": "user",
-            "content": f"IMPORTANTE: Responde SIEMPRE en español. Basado en un análisis comprensivo por un equipo de analistas, aquí hay un plan de inversión personalizado para {company_name}. Este plan incorpora perspectivas de tendencias técnicas actuales del mercado, indicadores macroeconómicos, y sentimiento de redes sociales. Usa este plan como fundamento para evaluar tu próxima decisión de trading.\n\nPlan de Inversión Propuesto: {investment_plan}\n\nUtiliza estas perspectivas para tomar una decisión informada y estratégica.",
+            "content": f"IMPORTANT: Always respond in English. Based on a comprehensive analysis by a team of analysts, here is a personalized investment plan for {company_name}. This plan incorporates insights from current technical market trends, macroeconomic indicators, and social media sentiment. Use this plan as a foundation to evaluate your next trading decision.\n\nProposed Investment Plan: {investment_plan}\n\nUse these insights to make an informed and strategic decision.",
         }
 
         messages = [
             {
                 "role": "system",
-                "content": f"""IMPORTANTE: Responde SIEMPRE en español. Eres un agente de trading analizando datos de mercado para tomar decisiones de inversión. Basado en tu análisis, proporciona una recomendación específica para comprar, vender, o mantener. Termina con una decisión firme y siempre concluye tu respuesta con 'PROPUESTA DE TRANSACCIÓN FINAL: **COMPRAR/MANTENER/VENDER**' para confirmar tu recomendación. No olvides utilizar lecciones de decisiones pasadas para aprender de tus errores. Aquí hay algunas reflexiones de situaciones similares en las que negociaste y las lecciones aprendidas: {past_memory_str}""",
+                "content": f"""IMPORTANT: Always respond in English. You are a trading agent analyzing market data to make investment decisions. Based on your analysis, provide a specific recommendation to buy, sell, or hold. End with a firm decision and always conclude your response with 'FINAL TRADING PROPOSAL: **BUY/HOLD/SELL**' to confirm your recommendation. Do not forget to use lessons from past decisions to learn from your mistakes. Here are some reflections from similar situations you traded in and the lessons learned: {past_memory_str}""",
             },
             context,
         ]

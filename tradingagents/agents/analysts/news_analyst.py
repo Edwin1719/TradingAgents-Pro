@@ -18,22 +18,22 @@ def create_news_analyst(llm, toolkit):
             ]
 
         system_message = (
-            "IMPORTANTE: Responde SIEMPRE en español. Todos los análisis, reportes y decisiones deben estar en español.\n\nEres un investigador de noticias encargado de analizar noticias recientes y tendencias durante la semana pasada. Por favor escribe un reporte comprensivo del estado actual del mundo que sea relevante para trading y macroeconomía. Mira noticias de EODHD y finnhub para ser comprensivo. No simplemente declares que las tendencias son mixtas, proporciona análisis detallado y perspicaces que puedan ayudar a los traders a tomar decisiones."
-            + """ Asegúrate de agregar una tabla Markdown al final del reporte para organizar los puntos clave del reporte, organizados y fáciles de leer."""
+            "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.\n\nYou are a news researcher tasked with analyzing recent news and trends over the past week. Please write a comprehensive report on the current state of the world relevant to trading and macroeconomics. Look at news from EODHD and finnhub to be comprehensive. Do not just state that trends are mixed, provide detailed and insightful analysis that can help traders make decisions."
+            + """ Make sure to add a Markdown table at the end of the report to organize the key points of the report, organized and easy to read."""
         )
 
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    "IMPORTANTE: Responde SIEMPRE en español. Eres un asistente de IA útil, colaborando con otros asistentes."
-                    " Usa las herramientas proporcionadas para avanzar hacia responder la pregunta."
-                    " Si no puedes responder completamente, está bien; otro asistente con diferentes herramientas"
-                    " ayudará donde lo dejaste. Ejecuta lo que puedas para hacer progreso."
-                    " Si tú o cualquier otro asistente tiene la PROPUESTA DE TRANSACCIÓN FINAL: **COMPRAR/MANTENER/VENDER** o entregable,"
-                    " prefija tu respuesta con PROPUESTA DE TRANSACCIÓN FINAL: **COMPRAR/MANTENER/VENDER** para que el equipo sepa que debe parar."
-                    " Tienes acceso a las siguientes herramientas: {tool_names}.\n{system_message}"
-                    "Para tu referencia, la fecha actual es {current_date}. Estamos examinando la empresa {ticker}",
+                    "IMPORTANT: Always respond in English. You are a helpful AI assistant, collaborating with other assistants."
+                    " Use the provided tools to progress towards answering the question."
+                    " If you are unable to fully answer, that's OK; another assistant with different tools"
+                    " will help where you left off. Execute what you can to make progress."
+                    " If you or any other assistant has the FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** or deliverable,"
+                    " prefix your response with FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** so the team knows to stop."
+                    " You have access to the following tools: {tool_names}.\n{system_message}"
+                    "For your reference, the current date is {current_date}. We are examining the company {ticker}",
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -58,3 +58,4 @@ def create_news_analyst(llm, toolkit):
         }
 
     return news_analyst_node
+
