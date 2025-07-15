@@ -7,89 +7,89 @@ from dotenv import load_dotenv
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
 
-# --- Configuración de la Página de Streamlit ---
+# --- Streamlit Page Configuration ---
 st.set_page_config(
-    page_title="Agente de Trading con IA",
+    page_title="AI Trading Agent",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.title("🤖 Agente de Trading con IA para Activos Financieros")
-st.markdown("Esta aplicación utiliza un equipo de agentes de IA para analizar el mercado de Activos y proponer una decisión de trading. Introduce tus claves de API y los parámetros de análisis para comenzar.")
+st.title("🤖 AI Trading Agent for Financial Assets")
+st.markdown("This application uses a team of AI agents to analyze the asset market and propose a trading decision. Enter your API keys and analysis parameters to get started.")
 
-# --- Barra Lateral de Configuración ---
+# --- Configuration Sidebar ---
 with st.sidebar:
-    st.header("🔑 Configuración de APIs")
+    st.header("🔑 API Configuration")
     if os.path.exists('.env'):
         load_dotenv()
 
-    openai_api_key = st.text_input("Clave API de OpenAI", type="password", value=os.getenv("OPENAI_API_KEY") or "")
-    openai_api_base = st.text_input("URL base de la API de OpenAI", value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1")
-    finnhub_api_key = st.text_input("Clave API de Finnhub", type="password", value=os.getenv("FINNHUB_API_KEY") or "")
+    openai_api_key = st.text_input("OpenAI API Key", type="password", value=os.getenv("OPENAI_API_KEY") or "")
+    openai_api_base = st.text_input("OpenAI API Base URL", value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1")
+    finnhub_api_key = st.text_input("Finnhub API Key", type="password", value=os.getenv("FINNHUB_API_KEY") or "")
     
-    st.header("⚙️ Parámetros del Agente")
+    st.header("⚙️ Agent Parameters")
     
-    # Selección de categoría y activos
+    # Asset category and selection
     asset_category = st.selectbox(
-        "Categoría de Activos", 
-        ["Criptomonedas", "Acciones Tech", "Acciones Blue Chip", "Índices", "Personalizado"]
+        "Asset Category", 
+        ["Cryptocurrencies", "Tech Stocks", "Blue Chip Stocks", "Indices", "Custom"]
     )
     
-    # Definir activos populares por categoría
+    # Define popular assets by category
     popular_assets = {
-        "Criptomonedas": ["BTC-USD", "ETH-USD", "ADA-USD", "SOL-USD", "MATIC-USD", "DOT-USD", "AVAX-USD", "LINK-USD"],
-        "Acciones Tech": ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA", "META", "AMZN", "NFLX"],
-        "Acciones Blue Chip": ["JPM", "JNJ", "KO", "PG", "WMT", "V", "MA", "DIS"],
-        "Índices": ["SPY", "QQQ", "IWM", "VTI", "GLD", "TLT", "VIX", "DXY"],
-        "Personalizado": []
+        "Cryptocurrencies": ["BTC-USD", "ETH-USD", "ADA-USD", "SOL-USD", "MATIC-USD", "DOT-USD", "AVAX-USD", "LINK-USD"],
+        "Tech Stocks": ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA", "META", "AMZN", "NFLX"],
+        "Blue Chip Stocks": ["JPM", "JNJ", "KO", "PG", "WMT", "V", "MA", "DIS"],
+        "Indices": ["SPY", "QQQ", "IWM", "VTI", "GLD", "TLT", "VIX", "DXY"],
+        "Custom": []
     }
     
-    if asset_category == "Personalizado":
-        ticker = st.text_input("Ticker del Activo", "BTC-USD")
-        analysis_mode = st.radio("Modo de Análisis", ["Activo Individual", "Análisis Múltiple"])
+    if asset_category == "Custom":
+        ticker = st.text_input("Asset Ticker", "BTC-USD")
+        analysis_mode = st.radio("Analysis Mode", ["Single Asset", "Multiple Analysis"])
         
-        if analysis_mode == "Análisis Múltiple":
+        if analysis_mode == "Multiple Analysis":
             custom_tickers = st.text_area(
-                "Tickers (separados por coma)", 
+                "Tickers (comma-separated)", 
                 "BTC-USD, ETH-USD, AAPL, TSLA",
-                help="Ejemplo: BTC-USD, ETH-USD, AAPL, TSLA, GOOGL"
+                help="Example: BTC-USD, ETH-USD, AAPL, TSLA, GOOGL"
             )
             selected_tickers = [t.strip() for t in custom_tickers.split(",") if t.strip()]
         else:
             selected_tickers = [ticker]
     else:
-        analysis_mode = st.radio("Modo de Análisis", ["Activo Individual", "Análisis Múltiple"])
+        analysis_mode = st.radio("Analysis Mode", ["Single Asset", "Multiple Analysis"])
         
-        if analysis_mode == "Análisis Múltiple":
+        if analysis_mode == "Multiple Analysis":
             selected_tickers = st.multiselect(
-                "Selecciona Activos para Analizar", 
+                "Select Assets to Analyze", 
                 popular_assets[asset_category],
                 default=[popular_assets[asset_category][0]]
             )
         else:
-            ticker = st.selectbox("Activo", popular_assets[asset_category])
+            ticker = st.selectbox("Asset", popular_assets[asset_category])
             selected_tickers = [ticker]
     
-    analysis_date = st.date_input("Fecha de Análisis", datetime.today())
+    analysis_date = st.date_input("Analysis Date", datetime.today())
     
-    st.header("🧠 Modelo de Lenguaje (LLM)")
-    llm_provider = st.selectbox("Proveedor de LLM", ["openai", "google", "anthropic"], index=0)
-    deep_think_llm = st.text_input("Modelo Principal (Deep Think)", "gpt-4o")
-    quick_think_llm = st.text_input("Modelo Rápido (Quick Think)", "gpt-4o")
+    st.header("🧠 Language Model (LLM)")
+    llm_provider = st.selectbox("LLM Provider", ["openai", "google", "anthropic"], index=0)
+    deep_think_llm = st.text_input("Main Model (Deep Think)", "gpt-4o")
+    quick_think_llm = st.text_input("Quick Model (Quick Think)", "gpt-4o")
 
-    run_analysis = st.button(f"🚀 Analizar {'Mercados' if len(selected_tickers) > 1 else 'Mercado'}")
+    run_analysis = st.button(f"🚀 Analyze { 'Markets' if len(selected_tickers) > 1 else 'Market'}")
 
 # --- Área Principal de la Aplicación ---
 if run_analysis:
     if not openai_api_key or not finnhub_api_key:
-        st.error("Por favor, introduce tus claves de API de OpenAI y Finnhub en la barra lateral.")
+        st.error("Please enter your OpenAI and Finnhub API keys in the sidebar.")
     else:
         os.environ["OPENAI_API_KEY"] = openai_api_key
         os.environ["OPENAI_API_BASE"] = openai_api_base
         os.environ["FINNHUB_API_KEY"] = finnhub_api_key
         
-        # Función para detectar tipo de activo
+        # Function to detect asset type
         def detect_asset_type(ticker):
             if ticker.endswith("-USD") or ticker.endswith("-EUR") or ticker.endswith("-USDT"):
                 return "crypto"
@@ -98,21 +98,21 @@ if run_analysis:
             else:
                 return "stock"
         
-        # Función para obtener analistas según tipo de activo
+        # Function to get analysts for asset type
         def get_analysts_for_asset(asset_type):
             if asset_type == "crypto":
-                return ["market", "social", "news"]  # Sin fundamentals para crypto
+                return ["market", "social", "news"]  # No fundamentals for crypto
             elif asset_type == "index":
-                return ["market", "news"]  # Índices no necesitan social ni fundamentals
+                return ["market", "news"]  # Indices don't need social or fundamentals
             else:
-                return ["market", "social", "news", "fundamentals"]  # Completo para acciones
+                return ["market", "social", "news", "fundamentals"]  # Complete for stocks
         
         if len(selected_tickers) == 1:
-            # Análisis individual
+            # Single analysis
             ticker = selected_tickers[0]
             asset_type = detect_asset_type(ticker)
             
-            with st.spinner(f"El equipo de agentes está analizando {ticker} ({asset_type})... Esto puede tardar unos minutos."):
+            with st.spinner(f"The agent team is analyzing {ticker} ({asset_type})... This may take a few minutes."):
                 try:
                     config = DEFAULT_CONFIG.copy()
                     config["llm_provider"] = llm_provider
@@ -121,8 +121,8 @@ if run_analysis:
                     config["quick_think_llm"] = quick_think_llm
                     config["online_tools"] = True
                     config["max_debate_rounds"] = 2
-                    config["language"] = "spanish"
-                    config["language_instruction"] = "IMPORTANTE: Responde SIEMPRE en español. Todos los análisis, reportes y decisiones deben estar en español."
+                    config["language"] = "english"
+                    config["language_instruction"] = "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English."
 
                     # Seleccionar analistas según tipo de activo
                     selected_analysts = get_analysts_for_asset(asset_type)
@@ -131,19 +131,19 @@ if run_analysis:
                     
                     state, decision = ta.propagate(ticker, formatted_date)
 
-                    st.success(f"Análisis completado para {ticker} ({asset_type}).")
+                    st.success(f"Analysis completed for {ticker} ({asset_type}).")
 
-                    # --- SECCIÓN DE DEPURACIÓN ---
-                    with st.expander("🐞 Salida de Depuración"):
-                        st.markdown("**Estado Crudo (`state`):**")
+                    # --- DEBUG SECTION ---
+                    with st.expander("🐞 Debug Output"):
+                        st.markdown("**Raw State (`state`):**")
                         st.write(state)
-                        st.markdown("**Decisión Cruda (`decision`):**")
+                        st.markdown("**Raw Decision (`decision`):**")
                         st.write(decision)
-                    # --- FIN DE LA SECCIÓN DE DEPURACIÓN ---
+                    # --- END OF DEBUG SECTION ---
 
-                    st.subheader(f"📈 Decisión Final para {ticker}:")
+                    st.subheader(f"📈 Final Decision for {ticker}:")
                     if decision:
-                        # Si la decisión es solo un string (BUY, SELL, HOLD), mostrarla directamente
+                        # If the decision is just a string (BUY, SELL, HOLD), display it directly
                         if isinstance(decision, str):
                             decision_color = {
                                 "BUY": "green",
@@ -154,46 +154,46 @@ if run_analysis:
                         else:
                             st.json(decision)
                     else:
-                        st.warning("El agente no produjo una decisión final.")
+                        st.warning("The agent did not produce a final decision.")
 
-                    st.subheader("📄 Informes Detallados de los Agentes:")
+                    st.subheader("📄 Detailed Agent Reports:")
                     
-                    with st.expander("🔍 Análisis Técnico de Mercado"):
-                        st.write(state.get("market_report", "No se encontraron resultados."))
+                    with st.expander("🔍 Market Technical Analysis"):
+                        st.write(state.get("market_report", "No results found."))
                     
-                    with st.expander("📱 Análisis de Sentimiento Social"):
-                        st.write(state.get("sentiment_report", "No se encontraron resultados."))
+                    with st.expander("📱 Social Sentiment Analysis"):
+                        st.write(state.get("sentiment_report", "No results found."))
                     
-                    with st.expander("📰 Análisis de Noticias"):
-                        st.write(state.get("news_report", "No se encontraron resultados."))
+                    with st.expander("📰 News Analysis"):
+                        st.write(state.get("news_report", "No results found."))
                     
                     if state.get("fundamentals_report"):
-                        with st.expander("📊 Análisis Fundamental"):
-                            st.write(state.get("fundamentals_report", "No disponible para criptomonedas."))
+                        with st.expander("📊 Fundamental Analysis"):
+                            st.write(state.get("fundamentals_report", "Not available for cryptocurrencies."))
 
-                    with st.expander("⚖️ Debate de Investigadores (Bull vs Bear)"):
+                    with st.expander("⚖️ Researcher Debate (Bull vs Bear)"):
                         investment_debate = state.get("investment_debate_state", {})
                         if investment_debate.get("judge_decision"):
                             st.write(investment_debate["judge_decision"])
                         else:
-                            st.write("No se encontraron resultados del debate.")
+                            st.write("No debate results found.")
                     
-                    with st.expander("💼 Propuesta del Trader"):
-                         st.write(state.get("trader_investment_plan", "No se encontraron resultados."))
+                    with st.expander("💼 Trader's Proposal"):
+                         st.write(state.get("trader_investment_plan", "No results found."))
 
-                    with st.expander("🛡️ Evaluación de Gestión de Riesgos"):
+                    with st.expander("🛡️ Risk Management Evaluation"):
                         risk_debate = state.get("risk_debate_state", {})
                         if risk_debate.get("judge_decision"):
                             st.write(risk_debate["judge_decision"])
                         else:
-                            st.write("No se encontraron resultados del análisis de riesgos.")
+                            st.write("No risk analysis results found.")
 
                 except Exception as e:
-                    st.error(f"Ha ocurrido un error durante el análisis: {e}")
+                    st.error(f"An error occurred during the analysis: {e}")
         
         else:
-            # Análisis múltiple
-            st.subheader(f"🔄 Análisis Múltiple de {len(selected_tickers)} Activos")
+            # Multiple analysis
+            st.subheader(f"🔄 Multiple Analysis of {len(selected_tickers)} Assets")
             
             results = {}
             progress_bar = st.progress(0)
@@ -201,7 +201,7 @@ if run_analysis:
             
             for i, ticker in enumerate(selected_tickers):
                 asset_type = detect_asset_type(ticker)
-                status_text.text(f"Analizando {ticker} ({asset_type})... {i+1}/{len(selected_tickers)}")
+                status_text.text(f"Analyzing {ticker} ({asset_type})... {i+1}/{len(selected_tickers)}")
                 
                 try:
                     config = DEFAULT_CONFIG.copy()
@@ -210,9 +210,9 @@ if run_analysis:
                     config["deep_think_llm"] = deep_think_llm
                     config["quick_think_llm"] = quick_think_llm
                     config["online_tools"] = True
-                    config["max_debate_rounds"] = 1  # Reducir rounds para análisis múltiple
-                    config["language"] = "spanish"
-                    config["language_instruction"] = "IMPORTANTE: Responde SIEMPRE en español. Todos los análisis, reportes y decisiones deben estar en español."
+                    config["max_debate_rounds"] = 1  # Reduce rounds for multiple analysis
+                    config["language"] = "english"
+                    config["language_instruction"] = "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English."
 
                     # Seleccionar analistas según tipo de activo
                     selected_analysts = get_analysts_for_asset(asset_type)
@@ -236,10 +236,10 @@ if run_analysis:
                 
                 progress_bar.progress((i + 1) / len(selected_tickers))
             
-            status_text.text("¡Análisis múltiple completado!")
+            status_text.text("Multiple analysis completed!")
             
-            # Mostrar resumen de resultados
-            st.subheader("📊 Resumen de Decisiones")
+            # Show summary of results
+            st.subheader("📊 Decision Summary")
             
             summary_data = []
             for ticker, result in results.items():
@@ -253,44 +253,44 @@ if run_analysis:
                         confidence = "N/A"
                     
                     summary_data.append({
-                        "Activo": ticker,
-                        "Tipo": result["asset_type"],
-                        "Acción": action,
-                        "Confianza": confidence,
-                        "Estado": "✅ Exitoso"
+                        "Asset": ticker,
+                        "Type": result["asset_type"],
+                        "Action": action,
+                        "Confidence": confidence,
+                        "Status": "✅ Successful"
                     })
                 else:
                     summary_data.append({
-                        "Activo": ticker,
-                        "Tipo": result["asset_type"],
-                        "Acción": "Error",
-                        "Confianza": "N/A",
-                        "Estado": "❌ Error"
+                        "Asset": ticker,
+                        "Type": result["asset_type"],
+                        "Action": "Error",
+                        "Confidence": "N/A",
+                        "Status": "❌ Error"
                     })
             
             st.dataframe(summary_data)
             
-            # Mostrar análisis detallado por activo
-            st.subheader("📄 Análisis Detallado por Activo")
+            # Show detailed analysis by asset
+            st.subheader("📄 Detailed Analysis by Asset")
             
             for ticker, result in results.items():
                 with st.expander(f"📈 {ticker} ({result['asset_type']})"):
                     if result["status"] == "success":
                         st.json(result["decision"])
                         
-                        st.markdown("**Informes de Agentes:**")
+                        st.markdown("**Agent Reports:**")
                         state = result["state"]
                         
-                        with st.expander("🔍 Análisis del Equipo de Analistas"):
-                            st.write(state.get("analyst_team_results", "No se encontraron resultados."))
+                        with st.expander("🔍 Analyst Team Analysis"):
+                            st.write(state.get("analyst_team_results", "No results found."))
 
-                        with st.expander("⚖️ Debate del Equipo de Investigadores"):
-                            st.write(state.get("researcher_team_results", "No se encontraron resultados."))
+                        with st.expander("⚖️ Researcher Team Debate"):
+                            st.write(state.get("researcher_team_results", "No results found."))
                         
-                        with st.expander("💼 Propuesta del Agente Trader"):
-                             st.write(state.get("trader_results", "No se encontraron resultados."))
+                        with st.expander("💼 Trader Agent Proposal"):
+                             st.write(state.get("trader_results", "No results found."))
 
-                        with st.expander("🛡️ Evaluación del Equipo de Gestión de Riesgos"):
-                            st.write(state.get("risk_management_results", "No se encontraron resultados."))
+                        with st.expander("🛡️ Risk Management Team Evaluation"):
+                            st.write(state.get("risk_management_results", "No results found."))
                     else:
-                        st.error(f"Error al analizar {ticker}: {result['error']}")
+                        st.error(f"Error analyzing {ticker}: {result['error']}")
