@@ -25,6 +25,7 @@ with st.sidebar:
         load_dotenv()
 
     openai_api_key = st.text_input("Clave API de OpenAI", type="password", value=os.getenv("OPENAI_API_KEY") or "")
+    openai_api_base = st.text_input("URL base de la API de OpenAI", value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1")
     finnhub_api_key = st.text_input("Clave API de Finnhub", type="password", value=os.getenv("FINNHUB_API_KEY") or "")
     
     st.header("⚙️ Parámetros del Agente")
@@ -85,6 +86,7 @@ if run_analysis:
         st.error("Por favor, introduce tus claves de API de OpenAI y Finnhub en la barra lateral.")
     else:
         os.environ["OPENAI_API_KEY"] = openai_api_key
+        os.environ["OPENAI_API_BASE"] = openai_api_base
         os.environ["FINNHUB_API_KEY"] = finnhub_api_key
         
         # Función para detectar tipo de activo
@@ -114,6 +116,7 @@ if run_analysis:
                 try:
                     config = DEFAULT_CONFIG.copy()
                     config["llm_provider"] = llm_provider
+                    config["backend_url"] = openai_api_base
                     config["deep_think_llm"] = deep_think_llm
                     config["quick_think_llm"] = quick_think_llm
                     config["online_tools"] = True
@@ -203,6 +206,7 @@ if run_analysis:
                 try:
                     config = DEFAULT_CONFIG.copy()
                     config["llm_provider"] = llm_provider
+                    config["backend_url"] = openai_api_base
                     config["deep_think_llm"] = deep_think_llm
                     config["quick_think_llm"] = quick_think_llm
                     config["online_tools"] = True
