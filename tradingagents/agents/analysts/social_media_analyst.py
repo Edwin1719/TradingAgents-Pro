@@ -3,7 +3,7 @@ import time
 import json
 
 
-def create_social_media_analyst(llm, toolkit):
+def create_social_media_analyst(llm, toolkit, config):
     def social_media_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
@@ -16,22 +16,28 @@ def create_social_media_analyst(llm, toolkit):
                 toolkit.get_reddit_stock_info,
             ]
 
-        system_message = (
-            "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.\n\nYou are a social media and company-specific news researcher/analyst tasked with analyzing social media posts, recent company news, and public sentiment for a specific company over the past week. You will be given a company name, and your goal is to write a long, comprehensive report detailing your analysis, insights, and implications for traders and investors on the current state of this company after looking at social media and what people are saying about that company, analyzing sentiment data of what people feel each day about the company, and looking at recent company news. Try to look at all possible sources from social media to sentiment to news. Do not just state that trends are mixed; provide detailed and insightful analysis that can help traders make decisions."
-            + """ Make sure to add a Markdown table at the end of the report to organize the key points of the report, organized and easy to read.""",
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
+
+        task_prompt = (
+            "You are a social media and company-specific news researcher/analyst tasked with analyzing social media posts, recent company news, and public sentiment for a specific company over the past week. You will be given a company name, and your goal is to write a long, comprehensive report detailing your analysis, insights, and implications for traders and investors on the current state of this company after looking at social media and what people are saying about that company, analyzing sentiment data of what people feel each day about the company, and looking at recent company news. Try to look at all possible sources from social media to sentiment to news. Do not just state that trends are mixed; provide detailed and insightful analysis that can help traders make decisions."
+            + """ Make sure to add a Markdown table at the end of the report to organize the key points of the report, organized and easy to read."""
         )
+
+        system_message = f"{lang_instruction}\n{task_prompt}"
 
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    "IMPORTANT: Always respond in English. You are a helpful AI assistant, collaborating with other assistants."
+                    "{system_message}\n"
+                    "You are a helpful AI assistant, collaborating with other assistants."
                     " Use the provided tools to progress towards answering the question."
                     " If you are unable to fully answer, that's OK; another assistant with different tools"
                     " will help where you left off. Execute what you can to make progress."
                     " If you or any other assistant has the FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** or deliverable,"
                     " prefix your response with FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** so the team knows to stop."
-                    " You have access to the following tools: {tool_names}.\n{system_message}"
+                    " You have access to the following tools: {tool_names}.\n"
                     "For your reference, the current date is {current_date}. The current company we want to analyze is {ticker}",
                 ),
                 MessagesPlaceholder(variable_name="messages"),

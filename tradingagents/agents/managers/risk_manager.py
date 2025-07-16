@@ -2,7 +2,7 @@ import time
 import json
 
 
-def create_risk_manager(llm, memory):
+def create_risk_manager(llm, memory, config):
     def risk_manager_node(state) -> dict:
 
         company_name = state["company_of_interest"]
@@ -22,9 +22,10 @@ def create_risk_manager(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-As the Risk Management Judge and Debate Facilitator, your objective is to evaluate the debate between three risk analysts—Aggressive, Neutral, and Conservative—and determine the best course of action for the trader. Your decision must result in a clear recommendation: Buy, Sell, or Hold. Choose Hold only if strongly justified by specific arguments, not as a fallback when all sides seem valid. Strive for clarity and decisiveness.
+        task_prompt = f"""As the Risk Management Judge and Debate Facilitator, your objective is to evaluate the debate between three risk analysts—Aggressive, Neutral, and Conservative—and determine the best course of action for the trader. Your decision must result in a clear recommendation: Buy, Sell, or Hold. Choose Hold only if strongly justified by specific arguments, not as a fallback when all sides seem valid. Strive for clarity and decisiveness.
 
 Decision-Making Guidelines:
 1. **Summarize Key Arguments**: Extract the strongest points from each analyst, focusing on relevance to the context.
@@ -44,6 +45,8 @@ Deliverables:
 ---
 
 Focus on actionable insights and continuous improvement. Build on past lessons, critically evaluate all perspectives, and ensure each decision drives better outcomes."""
+
+        prompt = f"{lang_instruction}\n{task_prompt}"
 
         response = llm.invoke(prompt)
 

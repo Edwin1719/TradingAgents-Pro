@@ -3,7 +3,7 @@ import time
 import json
 
 
-def create_bear_researcher(llm, memory):
+def create_bear_researcher(llm, memory, config):
     def bear_node(state) -> dict:
         investment_debate_state = state["investment_debate_state"]
         history = investment_debate_state.get("history", "")
@@ -22,9 +22,10 @@ def create_bear_researcher(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-You are a Bearish Analyst making the case against investing in the stock. Your goal is to present a well-reasoned argument emphasizing risks, challenges, and negative indicators. Leverage the provided research and data to highlight potential downsides and counter bullish arguments effectively.
+        task_prompt = f"""You are a Bearish Analyst making the case against investing in the stock. Your goal is to present a well-reasoned argument emphasizing risks, challenges, and negative indicators. Leverage the provided research and data to highlight potential downsides and counter bullish arguments effectively.
 
 Key points to focus on:
 
@@ -45,6 +46,8 @@ Latest bullish argument: {current_response}
 Reflections from similar situations and lessons learned: {past_memory_str}
 Use this information to deliver a compelling bearish argument, rebut bullish claims, and engage in a dynamic debate that demonstrates the risks and weaknesses of investing in the stock. You should also address reflections and learn from lessons and mistakes you made in the past.
 """
+
+        prompt = f"{lang_instruction}\n{task_prompt}"
 
         response = llm.invoke(prompt)
 

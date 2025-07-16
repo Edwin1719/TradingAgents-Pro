@@ -2,7 +2,7 @@ import time
 import json
 
 
-def create_neutral_debator(llm):
+def create_neutral_debator(llm, config):
     def neutral_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
@@ -18,9 +18,10 @@ def create_neutral_debator(llm):
 
         trader_decision = state["trader_investment_plan"]
 
-        prompt = f"""IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-As the Neutral Risk Analyst, your role is to provide a balanced perspective, weighing both the potential benefits and risks of the trader's decision or plan. You prioritize a comprehensive approach, evaluating the pros and cons while considering broader market trends, potential economic shifts, and diversification strategies. Here is the trader's decision:
+        task_prompt = f"""As the Neutral Risk Analyst, your role is to provide a balanced perspective, weighing both the potential benefits and risks of the trader's decision or plan. You prioritize a comprehensive approach, evaluating the pros and cons while considering broader market trends, potential economic shifts, and diversification strategies. Here is the trader's decision:
 
 {trader_decision}
 
@@ -33,6 +34,8 @@ Company Fundamentals Report: {fundamentals_report}
 Here is the current conversation history: {history} Here is the latest response from the aggressive analyst: {current_risky_response} Here is the latest response from the conservative analyst: {current_safe_response}. If there are no responses from the other viewpoints, do not hallucinate and just present your point.
 
 Actively engage by analyzing both sides critically, addressing weaknesses in the aggressive and conservative arguments to advocate for a more balanced approach. Challenge each of their points to illustrate why a moderate-risk strategy might offer the best of both worlds, providing growth potential while protecting against extreme volatility. Focus on debating rather than just presenting data, aiming to show that a balanced view can lead to the most reliable outcomes. Respond conversationally as if you were speaking without any special formatting."""
+
+        prompt = f"{lang_instruction}\n{task_prompt}"
 
         response = llm.invoke(prompt)
 

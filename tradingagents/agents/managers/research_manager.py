@@ -2,7 +2,7 @@ import time
 import json
 
 
-def create_research_manager(llm, memory):
+def create_research_manager(llm, memory, config):
     def research_manager_node(state) -> dict:
         history = state["investment_debate_state"].get("history", "")
         market_research_report = state["market_report"]
@@ -19,9 +19,10 @@ def create_research_manager(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-As the portfolio manager and debate facilitator, your role is to critically evaluate this round of debate and make a definitive decision: side with the bearish analyst, the bullish analyst, or choose to Hold only if strongly justified based on the arguments presented.
+        task_prompt = f"""As the portfolio manager and debate facilitator, your role is to critically evaluate this round of debate and make a definitive decision: side with the bearish analyst, the bullish analyst, or choose to Hold only if strongly justified based on the arguments presented.
 
 Summarize the key points from both sides concisely, focusing on the most compelling evidence or reasoning. Your recommendation—Buy, Sell, or Hold—should be clear and actionable. Avoid defaulting to Hold simply because both sides have valid points; commit to a stance grounded in the strongest arguments from the debate.
 
@@ -33,11 +34,14 @@ Strategic Actions: Concrete steps to implement the recommendation.
 Take into account your past mistakes in similar situations. Use these insights to refine your decision-making and ensure you are learning and improving. Present your analysis conversationally, as if speaking naturally, without special formatting.
 
 Here are your past reflections on mistakes:
-"{past_memory_str}"
+\"{past_memory_str}\"
 
 Here is the debate:
 Debate History:
 {history}"""
+
+        prompt = f"{lang_instruction}\n{task_prompt}"
+        
         response = llm.invoke(prompt)
 
         new_investment_debate_state = {

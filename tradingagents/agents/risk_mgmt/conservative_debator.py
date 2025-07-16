@@ -3,7 +3,7 @@ import time
 import json
 
 
-def create_safe_debator(llm):
+def create_safe_debator(llm, config):
     def safe_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
@@ -19,9 +19,10 @@ def create_safe_debator(llm):
 
         trader_decision = state["trader_investment_plan"]
 
-        prompt = f"""IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-As the Safe/Conservative Risk Analyst, your primary goal is to protect assets, minimize volatility, and ensure steady, reliable growth. You prioritize stability, security, and risk mitigation, carefully evaluating potential losses, economic downturns, and market volatility. When assessing the trader's decision or plan, critically examine high-risk elements, pointing out where the decision may expose the firm to undue risk and where more cautious alternatives could secure long-term gains. Here is the trader's decision:
+        task_prompt = f"""As the Safe/Conservative Risk Analyst, your primary goal is to protect assets, minimize volatility, and ensure steady, reliable growth. You prioritize stability, security, and risk mitigation, carefully evaluating potential losses, economic downturns, and market volatility. When assessing the trader's decision or plan, critically examine high-risk elements, pointing out where the decision may expose the firm to undue risk and where more cautious alternatives could secure long-term gains. Here is the trader's decision:
 
 {trader_decision}
 
@@ -34,6 +35,8 @@ Company Fundamentals Report: {fundamentals_report}
 Here is the current conversation history: {history} Here is the latest response from the aggressive analyst: {current_risky_response} Here is the latest response from the neutral analyst: {current_neutral_response}. If there are no responses from the other viewpoints, do not hallucinate and just present your point.
 
 Engage by questioning their optimism and emphasizing the potential downsides they may have overlooked. Address each of their counterpoints to show why a conservative stance is ultimately the safest path for the firm's assets. Focus on debating and critiquing their arguments to demonstrate the strength of a low-risk strategy over their approaches. Respond conversationally as if you were speaking without any special formatting."""
+
+        prompt = f"{lang_instruction}\n{task_prompt}"
 
         response = llm.invoke(prompt)
 

@@ -3,7 +3,7 @@ import time
 import json
 
 
-def create_trader(llm, memory):
+def create_trader(llm, memory, config):
     def trader_node(state, name):
         company_name = state["company_of_interest"]
         investment_plan = state["investment_plan"]
@@ -22,17 +22,20 @@ def create_trader(llm, memory):
         else:
             past_memory_str = "No past memories found."
 
-        context = {
-            "role": "user",
-            "content": f"IMPORTANT: Always respond in English. Based on a comprehensive analysis by a team of analysts, here is a personalized investment plan for {company_name}. This plan incorporates insights from current technical market trends, macroeconomic indicators, and social media sentiment. Use this plan as a foundation to evaluate your next trading decision.\n\nProposed Investment Plan: {investment_plan}\n\nUse these insights to make an informed and strategic decision.",
-        }
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
+
+        context_prompt = f"Based on a comprehensive analysis by a team of analysts, here is a personalized investment plan for {company_name}. This plan incorporates insights from current technical market trends, macroeconomic indicators, and social media sentiment. Use this plan as a foundation to evaluate your next trading decision.\n\nProposed Investment Plan: {investment_plan}\n\nUse these insights to make an informed and strategic decision."
+
+        system_prompt = f"""You are a trading agent analyzing market data to make investment decisions. Based on your analysis, provide a specific recommendation to buy, sell, or hold. End with a firm decision and always conclude your response with 'FINAL TRADING PROPOSAL: **BUY/HOLD/SELL**' to confirm your recommendation. Do not forget to use lessons from past decisions to learn from your mistakes. Here are some reflections from similar situations you traded in and the lessons learned: {past_memory_str}"""
+
+        full_prompt = f"{lang_instruction}\n{system_prompt}\n\n{context_prompt}"
 
         messages = [
             {
                 "role": "system",
-                "content": f"""IMPORTANT: Always respond in English. You are a trading agent analyzing market data to make investment decisions. Based on your analysis, provide a specific recommendation to buy, sell, or hold. End with a firm decision and always conclude your response with 'FINAL TRADING PROPOSAL: **BUY/HOLD/SELL**' to confirm your recommendation. Do not forget to use lessons from past decisions to learn from your mistakes. Here are some reflections from similar situations you traded in and the lessons learned: {past_memory_str}""",
+                "content": full_prompt,
             },
-            context,
         ]
 
         result = llm.invoke(messages)

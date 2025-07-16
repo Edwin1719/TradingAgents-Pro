@@ -95,6 +95,7 @@ class TradingAgentsGraph:
             self.invest_judge_memory,
             self.risk_manager_memory,
             self.conditional_logic,
+            self.config,  # Pass config to GraphSetup
         )
 
         self.propagator = Propagator()

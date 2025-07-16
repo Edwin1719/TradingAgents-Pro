@@ -3,7 +3,7 @@ import time
 import json
 
 
-def create_market_analyst(llm, toolkit):
+def create_market_analyst(llm, toolkit, config):
 
     def market_analyst_node(state):
         current_date = state["trade_date"]
@@ -21,10 +21,11 @@ def create_market_analyst(llm, toolkit):
                 toolkit.get_stockstats_indicators_report,
             ]
 
-        system_message = (
-            """IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-You are a trading assistant tasked with analyzing financial markets. Your role is to select the **most relevant indicators** for a given market condition or trading strategy from the following list. The goal is to choose up to **8 indicators** that provide complementary information without redundancy. The categories and the indicators in each category are:
+        task_prompt = (
+            """You are a trading assistant tasked with analyzing financial markets. Your role is to select the **most relevant indicators** for a given market condition or trading strategy from the following list. The goal is to choose up to **8 indicators** that provide complementary information without redundancy. The categories and the indicators in each category are:
 
 Moving Averages:
 - close_50_sma: 50 SMA: A medium-term trend indicator. Use: Identify trend direction and serve as dynamic support/resistance. Tips: Lags behind price; combine with faster indicators for timely signals.
@@ -52,17 +53,20 @@ Volume-Based Indicators:
             + """ Make sure to add a Markdown table at the end of the report to organize the key points of the report, organized and easy to read."""
         )
 
+        system_message = f"{lang_instruction}\n{task_prompt}"
+
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    "IMPORTANT: Always respond in English. You are a helpful AI assistant, collaborating with other assistants."
+                    "{system_message}\n"
+                    "You are a helpful AI assistant, collaborating with other assistants."
                     " Use the provided tools to progress towards answering the question."
                     " If you are unable to fully answer, that's OK; another assistant with different tools"
                     " will help where you left off. Execute what you can to make progress."
                     " If you or any other assistant has the FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** or deliverable,"
                     " prefix your response with FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** so the team knows to stop."
-                    " You have access to the following tools: {tool_names}.\n{system_message}"
+                    " You have access to the following tools: {tool_names}.\n"
                     "For your reference, the current date is {current_date}. The company we want to examine is {ticker}",
                 ),
                 MessagesPlaceholder(variable_name="messages"),

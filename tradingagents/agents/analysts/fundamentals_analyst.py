@@ -3,7 +3,7 @@ import time
 import json
 
 
-def create_fundamentals_analyst(llm, toolkit):
+def create_fundamentals_analyst(llm, toolkit, config):
     def fundamentals_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
@@ -31,31 +31,37 @@ def create_fundamentals_analyst(llm, toolkit):
                     toolkit.get_simfin_income_stmt,
                 ]
 
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
+
         # Detect if it is a cryptocurrency
         is_crypto = ticker.endswith("-USD") or ticker.endswith("-EUR") or ticker.endswith("-USDT")
         
         if is_crypto:
-            system_message = (
-                "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.\n\nYou are a researcher tasked with analyzing fundamental information about a cryptocurrency. Since cryptocurrencies do not have traditional financial statements, focus on: project fundamentals, tokenomics, network activity, adoption metrics, partnerships, development activity, governance, and market position. For crypto assets, analyze the underlying blockchain technology, use cases, total supply, circulating supply, staking rewards, and ecosystem growth. Provide detailed insights that help traders understand the long-term value proposition of this cryptocurrency."
+            task_prompt = (
+                "You are a researcher tasked with analyzing fundamental information about a cryptocurrency. Since cryptocurrencies do not have traditional financial statements, focus on: project fundamentals, tokenomics, network activity, adoption metrics, partnerships, development activity, governance, and market position. For crypto assets, analyze the underlying blockchain technology, use cases, total supply, circulating supply, staking rewards, and ecosystem growth. Provide detailed insights that help traders understand the long-term value proposition of this cryptocurrency."
                 + " Make sure to add a Markdown table at the end of the report to organize the key points of the report, organized and easy to read."
             )
         else:
-            system_message = (
-                "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English.\n\nYou are a researcher tasked with analyzing fundamental information over the past week about a company. Please write a comprehensive report on the company's fundamental information such as financial documents, company profile, basic company finances, company financial history, insider sentiment, and insider transactions to get a complete view of the company's fundamental information to inform traders. Make sure to include as much detail as possible. Do not just state that trends are mixed, provide detailed and insightful analysis that can help traders make decisions."
+            task_prompt = (
+                "You are a researcher tasked with analyzing fundamental information over the past week about a company. Please write a comprehensive report on the company's fundamental information such as financial documents, company profile, basic company finances, company financial history, insider sentiment, and insider transactions to get a complete view of the company's fundamental information to inform traders. Make sure to include as much detail as possible. Do not just state that trends are mixed, provide detailed and insightful analysis that can help traders make decisions."
                 + " Make sure to add a Markdown table at the end of the report to organize the key points of the report, organized and easy to read."
             )
+
+        system_message = f"{lang_instruction}\n{task_prompt}"
 
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    "IMPORTANT: Always respond in English. You are a helpful AI assistant, collaborating with other assistants."
+                    "{system_message}\n"
+                    "You are a helpful AI assistant, collaborating with other assistants."
                     " Use the provided tools to progress towards answering the question."
                     " If you are unable to fully answer, that's OK; another assistant with different tools"
                     " will help where you left off. Execute what you can to make progress."
                     " If you or any other assistant has the FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** or deliverable,"
                     " prefix your response with FINAL TRADING PROPOSAL: **BUY/HOLD/SELL** so the team knows to stop."
-                    " You have access to the following tools: {tool_names}.\n{system_message}"
+                    " You have access to the following tools: {tool_names}.\n"
                     "For your reference, the current date is {current_date}. The company we want to examine is {ticker}",
                 ),
                 MessagesPlaceholder(variable_name="messages"),
