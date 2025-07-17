@@ -171,24 +171,51 @@ div[data-testid="stExpander"] > details > div {
     overflow-y: auto !important;
     scroll-behavior: smooth !important;
 }
+
+/* 隐藏自动滚动iframe的容器 */
+.scroll-trigger {
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# 添加自动滚动组件
-def auto_scroll_to_bottom():
-    # 使用st.components.v1.html创建一个iframe，其中包含自动滚动脚本
-    st.components.v1.html("""
-    <script>
-        // 等待父窗口中的元素加载完成
-        setTimeout(function() {
-            // 查找所有Analysis Log容器并滚动到底部
-            var expanders = window.parent.document.querySelectorAll('div[data-testid="stExpander"] > details > div');
-            for (var i = 0; i < expanders.length; i++) {
-                expanders[i].scrollTop = expanders[i].scrollHeight;
-            }
-        }, 200);
-    </script>
-    """, height=0, width=0)
+# 创建一个全局的自动滚动控制占位符，用于存放iframe
+if 'scroll_placeholder' not in st.session_state:
+    st.session_state.scroll_placeholder = st.empty()
+
+# 添加自动滚动组件（每次都生成新的iframe）
+def update_auto_scroll():
+    import time
+    # 生成时间戳，确保每次更新iframe都是唯一的
+    timestamp = int(time.time() * 1000)
+    
+    # 使用session_state中的占位符更新自动滚动脚本
+    st.session_state.scroll_placeholder.markdown(
+        f"""
+        <div class="scroll-trigger">
+        <iframe srcdoc="
+        <script>
+            // 使用时间戳：{timestamp}，确保脚本每次都执行
+            console.log('Auto-scroll triggered at {timestamp}');
+            // 等待父窗口中的元素加载完成
+            setTimeout(function() {{
+                // 查找所有Analysis Log容器并滚动到底部
+                var expanders = window.parent.document.querySelectorAll('div[data-testid=\\'stExpander\\'] > details > div');
+                for (var i = 0; i < expanders.length; i++) {{
+                    expanders[i].scrollTop = expanders[i].scrollHeight;
+                    console.log('Scrolling container ' + i + ' to ' + expanders[i].scrollHeight);
+                }}
+            }}, 200);
+        </script>
+        " height="0" width="0" frameborder="0"></iframe>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
 
 st.title(T["title"])
 st.markdown(T["description"])
@@ -334,8 +361,8 @@ if run_analysis:
                 log_expander.empty()
                 for msg in st.session_state.log_messages:
                     log_expander.write(msg)
-                # 添加自动滚动组件
-                auto_scroll_to_bottom()
+                # 触发自动滚动（使用全局占位符，但每次都生成新iframe）
+                update_auto_scroll()
 
             spinner_text = T["spinner_analyzing"].format(ticker=ticker, asset_type=asset_type)
             with st.spinner(spinner_text):
@@ -419,8 +446,8 @@ if run_analysis:
                 log_expander.empty()
                 for msg in st.session_state.log_messages:
                     log_expander.write(msg)
-                # 添加自动滚动组件
-                auto_scroll_to_bottom()
+                # 触发自动滚动（使用全局占位符，但每次都生成新iframe）
+                update_auto_scroll()
             
             multi_analysis_config = config.copy()
             multi_analysis_config["max_debate_rounds"] = 1
