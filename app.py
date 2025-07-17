@@ -362,7 +362,7 @@ if run_analysis:
                 # 清空expander并重新添加所有消息
                 log_expander.empty()
                 for msg in st.session_state.log_messages:
-                    log_expander.write(msg)
+                    log_expander.markdown(msg, unsafe_allow_html=True)
                 # 触发自动滚动（使用全局占位符，但每次都生成新iframe）
                 update_auto_scroll()
 
@@ -459,7 +459,7 @@ if run_analysis:
                 # 清空expander并重新添加所有消息
                 log_expander.empty()
                 for msg in st.session_state.log_messages:
-                    log_expander.write(msg)
+                    log_expander.markdown(msg, unsafe_allow_html=True)
                 # 触发自动滚动（使用全局占位符，但每次都生成新iframe）
                 update_auto_scroll()
             
