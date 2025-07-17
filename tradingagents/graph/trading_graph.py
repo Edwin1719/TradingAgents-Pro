@@ -114,34 +114,30 @@ class TradingAgentsGraph:
         self.log_states_dict = {}  # date to full state dict
         self.log_step_mapping = {
             'zh': {
-                "company_of_interest": "---\n### 🎯 **锁定分析目标**\n- **资产:** {company_of_interest}",
-                "trade_date": "- **日期:** {trade_date}\n---",
+                "company_of_interest": "---\n### 🎯 **交易员指令已确认**\n- **分析目标:** {company_of_interest}",
+                "trade_date": "- **分析日期:** {trade_date}\n---",
                 "market_report": "### 📈 **阶段1: 分析师团队启动**\n- **市场分析师** 已完成宏观趋势评估。",
                 "sentiment_report": "- **情绪分析师** 已完成市场情绪评估。",
                 "news_report": "- **新闻分析师** 已完成关键情报汇总。",
                 "fundamentals_report": "- **基本面分析师** 已完成公司价值评估。",
-                "investment_debate_state": "### ⚖️ **阶段2: 多空策略辩论**\n- **多空对决** 辩论结束，仲裁法官判定共识为: \n> {judge_decision}",
-                "trader_investment_plan": "### ✍️ **阶段3: 交易策略与风险评估**\n- **交易策略师** 已根据辩论共识，拟定初步交易草案。",
-                "risk_debate_state": "- **风险管理官** 已完成风险评估，最终计划已加固。",
+                "investment_debate_state": "### ⚖️ **阶段2: 多空策略辩论**\n- **仲裁法官** 判定最终共识为: \n> {judge_decision}",
+                "trader_investment_plan": "### ✍️ **阶段3: 交易策略与风险评估**\n- **交易策略师** 已拟定初步交易草案。",
+                "risk_debate_state": "- **风险管理官** 已完成风险评估。",
                 "investment_plan": "### 📝 **阶段4: 生成最终计划**\n- **作战室** 已敲定最终交易计划。",
-                "final_trade_decision": "### 🚀 **阶段5: 输出最终决策**\n- **交易指令:** {action}",
-                "fallback": "✅ **{step_name}**: 操作完成.",
-                "start_analysis": "🔍 **开始分析:** {company_name} on {trade_date}...",
+                "final_trade_decision": "### 🚀 **阶段5: 输出最终决策**\n- **交易指令:** {action} (置信度: {confidence})"
             },
             'en': {
-                "company_of_interest": "---\n### 🎯 **Target Locked**\n- **Asset:** {company_of_interest}",
-                "trade_date": "- **Date:** {trade_date}\n---",
+                "company_of_interest": "---\n### 🎯 **Trader's Directive Confirmed**\n- **Analysis Target:** {company_of_interest}",
+                "trade_date": "- **Analysis Date:** {trade_date}\n---",
                 "market_report": "### 📈 **Phase 1: Analyst Team Kick-off**\n- **Market Analyst** has completed the macro trend assessment.",
                 "sentiment_report": "- **Sentiment Analyst** has completed the market sentiment assessment.",
                 "news_report": "- **News Analyst** has compiled key intelligence.",
                 "fundamentals_report": "- **Fundamentals Analyst** has completed the company valuation.",
-                "investment_debate_state": "### ⚖️ **Phase 2: Strategy Debate**\n- **Bull vs. Bear** debate concluded. The judge's consensus is: \n> {judge_decision}",
-                "trader_investment_plan": "### ✍️ **Phase 3: Trading Strategy & Risk Assessment**\n- **Trading Strategist** has drafted a preliminary trade plan based on the consensus.",
-                "risk_debate_state": "- **Risk Management Officer** has completed the risk assessment, and the final plan is fortified.",
+                "investment_debate_state": "### ⚖️ **Phase 2: Strategy Debate**\n- **The Judge** has determined the final consensus: \n> {judge_decision}",
+                "trader_investment_plan": "### ✍️ **Phase 3: Trading Strategy & Risk Assessment**\n- **Trading Strategist** has drafted a preliminary trade plan.",
+                "risk_debate_state": "- **Risk Management Officer** has completed the risk assessment.",
                 "investment_plan": "### 📝 **Phase 4: Final Plan Generation**\n- **War Room** has locked in the final trading plan.",
-                "final_trade_decision": "### 🚀 **Phase 5: Final Decision Output**\n- **Trade Order:** {action}",
-                "fallback": "✅ **{step_name}**: Operation complete.",
-                "start_analysis": "🔍 **Starting Analysis:** {company_name} on {trade_date}...",
+                "final_trade_decision": "### 🚀 **Phase 5: Final Decision Output**\n- **Trade Order:** {action} (Confidence: {confidence})"
             }
         }
 
