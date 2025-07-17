@@ -348,8 +348,10 @@ if run_analysis:
             
             st.subheader(f"{T['analyze_market']}: {ticker} ({asset_type})")
             
-            log_expander = st.expander("Analysis Log", expanded=True)
-            
+            # 创建一个占位符用于放置日志expander
+            log_placeholder = st.empty()
+            log_expander = log_placeholder.expander("Analysis Log", expanded=True)
+
             # 用于存储日志消息的列表
             if 'log_messages' not in st.session_state:
                 st.session_state.log_messages = []
@@ -380,6 +382,15 @@ if run_analysis:
                     formatted_date = analysis_date.strftime("%Y-%m-%d")
                     
                     state, decision = ta.propagate(ticker, formatted_date)
+
+                    # 分析完成后，重新创建日志expander，但默认收起
+                    # 替换占位符中的expander为收起状态
+                    log_placeholder.empty()
+                    log_expander = log_placeholder.expander("Analysis Log", expanded=False)
+                    for msg in st.session_state.log_messages:
+                        log_expander.write(msg)
+                    # 触发一次自动滚动，确保日志显示在底部
+                    update_auto_scroll()
 
                     st.success(T["analysis_completed"].format(ticker=ticker, asset_type=asset_type))
 
@@ -434,7 +445,9 @@ if run_analysis:
             progress_bar = st.progress(0)
             status_text = st.empty()
             
-            log_expander = st.expander("Analysis Log", expanded=True)
+            # 创建一个占位符用于放置日志expander
+            log_placeholder = st.empty()
+            log_expander = log_placeholder.expander("Analysis Log", expanded=True)
             
             # 重置日志消息列表
             st.session_state.log_messages = []
@@ -476,6 +489,15 @@ if run_analysis:
                     log_expander.write(f"--- Error analyzing {ticker} ---")
                 
                 progress_bar.progress((i + 1) / len(selected_tickers))
+            
+            # 多资产分析完成后，重新创建日志expander，但默认收起
+            # 替换占位符中的expander为收起状态
+            log_placeholder.empty()
+            log_expander = log_placeholder.expander("Analysis Log", expanded=False)
+            for msg in st.session_state.log_messages:
+                log_expander.write(msg)
+            # 触发一次自动滚动，确保日志显示在底部
+            update_auto_scroll()
             
             status_text.empty()
             st.success(T["multiple_analysis_completed"])
