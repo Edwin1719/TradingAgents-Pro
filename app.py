@@ -293,77 +293,73 @@ if run_analysis:
             
             st.subheader(f"{T['analyze_market']}: {ticker} ({asset_type})")
             
-            status_area = st.empty()
-            status_area.info(T["spinner_analyzing"].format(ticker=ticker, asset_type=asset_type))
-            
             log_expander = st.expander("Analysis Log", expanded=True)
 
             def log_to_streamlit(message):
                 log_expander.write(message)
 
-            try:
-                single_analysis_config = config.copy()
-                single_analysis_config["max_debate_rounds"] = 2
-                
-                selected_analysts = get_analysts_for_asset(asset_type)
-                ta = TradingAgentsGraph(
-                    debug=False, 
-                    config=single_analysis_config, 
-                    selected_analysts=selected_analysts,
-                    log_callback=log_to_streamlit
-                )
-                formatted_date = analysis_date.strftime("%Y-%m-%d")
-                
-                state, decision = ta.propagate(ticker, formatted_date)
+            spinner_text = T["spinner_analyzing"].format(ticker=ticker, asset_type=asset_type)
+            with st.spinner(spinner_text):
+                try:
+                    single_analysis_config = config.copy()
+                    single_analysis_config["max_debate_rounds"] = 2
+                    
+                    selected_analysts = get_analysts_for_asset(asset_type)
+                    ta = TradingAgentsGraph(
+                        debug=False, 
+                        config=single_analysis_config, 
+                        selected_analysts=selected_analysts,
+                        log_callback=log_to_streamlit
+                    )
+                    formatted_date = analysis_date.strftime("%Y-%m-%d")
+                    
+                    state, decision = ta.propagate(ticker, formatted_date)
 
-                status_area.empty()
-                st.success(T["analysis_completed"].format(ticker=ticker, asset_type=asset_type))
+                    st.success(T["analysis_completed"].format(ticker=ticker, asset_type=asset_type))
 
-                with st.expander(T["debug_output"]):
-                    st.markdown(T["raw_state"])
-                    st.write(state)
-                    st.markdown(T["raw_decision"])
-                    st.write(decision)
+                    with st.expander(T["debug_output"]):
+                        st.markdown(T["raw_state"])
+                        st.write(state)
+                        st.markdown(T["raw_decision"])
+                        st.write(decision)
 
-                st.subheader(T["final_decision"].format(ticker=ticker))
-                if decision:
-                    if isinstance(decision, str):
-                        decision_color = {"BUY": "green", "SELL": "red", "HOLD": "orange"}.get(decision.upper(), "blue")
-                        st.markdown(f"### :{decision_color}[{decision.upper()}]")
+                    st.subheader(T["final_decision"].format(ticker=ticker))
+                    if decision:
+                        if isinstance(decision, str):
+                            decision_color = {"BUY": "green", "SELL": "red", "HOLD": "orange"}.get(decision.upper(), "blue")
+                            st.markdown(f"### :{decision_color}[{decision.upper()}]")
+                        else:
+                            st.json(decision)
                     else:
-                        st.json(decision)
-                else:
-                    st.warning(T["no_decision"])
+                        st.warning(T["no_decision"])
 
-                st.subheader(T["detailed_reports"])
-                
-                with st.expander(T["market_analysis"]):
-                    st.write(state.get("market_report", T["no_results"]))
-                
-                with st.expander(T["social_analysis"]):
-                    st.write(state.get("sentiment_report", T["no_results"]))
-                
-                with st.expander(T["news_analysis"]):
-                    st.write(state.get("news_report", T["no_results"]))
-                
-                if state.get("fundamentals_report"):
-                    with st.expander(T["fundamentals_analysis"]):
-                        st.write(state.get("fundamentals_report", T["fundamentals_na"]))
+                    st.subheader(T["detailed_reports"])
+                    
+                    with st.expander(T["market_analysis"]):
+                        st.write(state.get("market_report", T["no_results"]))
+                    
+                    with st.expander(T["social_analysis"]):
+                        st.write(state.get("sentiment_report", T["no_results"]))
+                    
+                    with st.expander(T["news_analysis"]):
+                        st.write(state.get("news_report", T["no_results"]))
+                    
+                    if state.get("fundamentals_report"):
+                        with st.expander(T["fundamentals_analysis"]):
+                            st.write(state.get("fundamentals_report", T["fundamentals_na"]))
 
-                with st.expander(T["researcher_debate"]):
-                    investment_debate = state.get("investment_debate_state", {})
-                    st.write(investment_debate.get("judge_decision", T["no_results"]))
-                
-                with st.expander(T["trader_proposal"]):
-                        st.write(state.get("trader_investment_plan", T["no_results"]))
+                    with st.expander(T["researcher_debate"]):
+                        investment_debate = state.get("investment_debate_state", {})
+                        st.write(investment_debate.get("judge_decision", T["no_results"]))
+                    
+                    with st.expander(T["trader_proposal"]):
+                            st.write(state.get("trader_investment_plan", T["no_results"]))
 
-                with st.expander(T["risk_evaluation"]):
-                    risk_debate = state.get("risk_debate_state", {})
-                    st.write(risk_debate.get("judge_decision", T["no_results"]))
-
-            except Exception as e:
-                status_area.empty()
-                st.error(T["error_analysis"].format(e=e))
+                    with st.expander(T["risk_evaluation"]):
+                        risk_debate = state.get("risk_debate_state", {})
+                        st.write(risk_debate.get("judge_decision", T["no_results"]))
+                except Exception as e:
+                    st.error(T["error_analysis"].format(e=e))
         
         else:
             st.subheader(T["multiple_analysis_header"].format(num_assets=len(selected_tickers)))
