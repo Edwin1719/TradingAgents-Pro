@@ -525,24 +525,51 @@ if run_analysis:
             st.dataframe(summary_data)
             
             st.subheader(T["detailed_analysis_by_asset"])
-            
+
             for ticker, result in results.items():
-                with st.expander(f"📈 {ticker} ({result['asset_type']})"):
-                    if result["status"] == "success":
-                        st.json(result["decision"])
-                        st.markdown(T["agent_reports"])
-                        state = result["state"]
-                        
-                        with st.expander(T["analyst_team_analysis"]):
-                            st.write(state.get("analyst_team_results", T["no_results"]))
+                with st.expander(f"📈 {ticker} ({result.get('asset_type', 'N/A')})"):
+                    if result.get("status") == "success":
+                        decision = result.get("decision")
+                        state = result.get("state", {})
 
-                        with st.expander(T["researcher_team_debate"]):
-                            st.write(state.get("researcher_team_results", T["no_results"]))
-                        
-                        with st.expander(T["trader_agent_proposal"]):
-                             st.write(state.get("trader_results", T["no_results"]))
+                        # Display final decision (similar to single asset mode)
+                        st.subheader(T["final_decision"].format(ticker=ticker))
+                        if decision:
+                            if isinstance(decision, str):
+                                decision_color = {"BUY": "green", "SELL": "red", "HOLD": "orange"}.get(decision.upper(), "blue")
+                                st.markdown(f"### :{decision_color}[{decision.upper()}]")
+                            elif isinstance(decision, dict):
+                                st.json(decision)
+                            else:
+                                st.write(decision)
+                        else:
+                            st.warning(T["no_decision"])
 
-                        with st.expander(T["risk_management_team_evaluation"]):
-                            st.write(state.get("risk_management_results", T["no_results"]))
+                        # Display detailed reports (similar to single asset mode)
+                        st.subheader(T["detailed_reports"])
+
+                        with st.expander(T["market_analysis"]):
+                            st.write(state.get("market_report", T["no_results"]))
+                        
+                        with st.expander(T["social_analysis"]):
+                            st.write(state.get("sentiment_report", T["no_results"]))
+                        
+                        with st.expander(T["news_analysis"]):
+                            st.write(state.get("news_report", T["no_results"]))
+                        
+                        if state.get("fundamentals_report"):
+                            with st.expander(T["fundamentals_analysis"]):
+                                st.write(state.get("fundamentals_report", T["fundamentals_na"]))
+
+                        with st.expander(T["researcher_debate"]):
+                            investment_debate = state.get("investment_debate_state", {})
+                            st.write(investment_debate.get("judge_decision", T["no_results"]))
+                        
+                        with st.expander(T["trader_proposal"]):
+                            st.write(state.get("trader_investment_plan", T["no_results"]))
+
+                        with st.expander(T["risk_evaluation"]):
+                            risk_debate = state.get("risk_debate_state", {})
+                            st.write(risk_debate.get("judge_decision", T["no_results"]))
                     else:
-                        st.error(T["error_analyzing_ticker"].format(ticker=ticker, error=result['error']))
+                        st.error(T["error_analyzing_ticker"].format(ticker=ticker, error=result.get('error', 'Unknown error')))
