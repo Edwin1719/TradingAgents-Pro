@@ -37,6 +37,7 @@ class TradingAgentsGraph:
         selected_analysts=["market", "social", "news", "fundamentals"],
         debug=False,
         config: Dict[str, Any] = None,
+        log_callback: Optional[callable] = None,
     ):
         """Initialize the trading agents graph and components.
 
@@ -44,9 +45,11 @@ class TradingAgentsGraph:
             selected_analysts: List of analyst types to include
             debug: Whether to run in debug mode
             config: Configuration dictionary. If None, uses default config
+            log_callback: Optional callable for logging updates.
         """
         self.debug = debug
         self.config = config or DEFAULT_CONFIG
+        self.log_callback = log_callback
 
         # Update the interface's config
         set_config(self.config)
@@ -160,26 +163,26 @@ class TradingAgentsGraph:
 
         self.ticker = company_name
 
+        if self.log_callback:
+            self.log_callback(f"Starting analysis for {company_name} on {trade_date}...")
+
         # Initialize state
         init_agent_state = self.propagator.create_initial_state(
             company_name, trade_date
         )
         args = self.propagator.get_graph_args()
 
-        if self.debug:
-            # Debug mode with tracing
-            trace = []
-            for chunk in self.graph.stream(init_agent_state, **args):
-                if len(chunk["messages"]) == 0:
-                    pass
-                else:
-                    chunk["messages"][-1].pretty_print()
-                    trace.append(chunk)
+        # Replace invoke with stream to get real-time updates
+        final_state = None
+        for chunk in self.graph.stream(init_agent_state, **args):
+            if self.log_callback:
+                for key, value in chunk.items():
+                    if value:
+                        self.log_callback(f"Step: {key} completed.")
+            final_state = chunk
 
-            final_state = trace[-1]
-        else:
-            # Standard mode without tracing
-            final_state = self.graph.invoke(init_agent_state, **args)
+        if self.log_callback:
+            self.log_callback("Analysis complete. Processing final decision...")
 
         # Store current state for reflection
         self.curr_state = final_state

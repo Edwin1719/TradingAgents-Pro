@@ -290,7 +290,13 @@ if run_analysis:
         if len(selected_tickers) == 1:
             ticker = selected_tickers[0]
             asset_type = detect_asset_type(ticker)
-            
+
+            st.subheader(f"{T['analyze_market']}: {ticker} ({asset_type})")
+            log_container = st.container()
+
+            def log_to_streamlit(message):
+                log_container.write(message)
+
             spinner_text = T["spinner_analyzing"].format(ticker=ticker, asset_type=asset_type)
             with st.spinner(spinner_text):
                 try:
@@ -298,7 +304,12 @@ if run_analysis:
                     single_analysis_config["max_debate_rounds"] = 2
                     
                     selected_analysts = get_analysts_for_asset(asset_type)
-                    ta = TradingAgentsGraph(debug=False, config=single_analysis_config, selected_analysts=selected_analysts)
+                    ta = TradingAgentsGraph(
+                        debug=False, 
+                        config=single_analysis_config, 
+                        selected_analysts=selected_analysts,
+                        log_callback=log_to_streamlit
+                    )
                     formatted_date = analysis_date.strftime("%Y-%m-%d")
                     
                     state, decision = ta.propagate(ticker, formatted_date)
@@ -356,6 +367,10 @@ if run_analysis:
             results = {}
             progress_bar = st.progress(0)
             status_text = st.empty()
+            log_container = st.container()
+
+            def log_to_streamlit(message):
+                log_container.write(message)
             
             multi_analysis_config = config.copy()
             multi_analysis_config["max_debate_rounds"] = 1
@@ -366,7 +381,12 @@ if run_analysis:
                 
                 try:
                     selected_analysts = get_analysts_for_asset(asset_type)
-                    ta = TradingAgentsGraph(debug=False, config=multi_analysis_config, selected_analysts=selected_analysts)
+                    ta = TradingAgentsGraph(
+                        debug=False, 
+                        config=multi_analysis_config, 
+                        selected_analysts=selected_analysts,
+                        log_callback=log_to_streamlit
+                    )
                     formatted_date = analysis_date.strftime("%Y-%m-%d")
                     
                     state, decision = ta.propagate(ticker, formatted_date)
