@@ -169,9 +169,26 @@ st.markdown("""
 div[data-testid="stExpander"] > details > div {
     max-height: 50vh !important;
     overflow-y: auto !important;
+    scroll-behavior: smooth !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
+# 添加自动滚动组件
+def auto_scroll_to_bottom():
+    # 使用st.components.v1.html创建一个iframe，其中包含自动滚动脚本
+    st.components.v1.html("""
+    <script>
+        // 等待父窗口中的元素加载完成
+        setTimeout(function() {
+            // 查找所有Analysis Log容器并滚动到底部
+            var expanders = window.parent.document.querySelectorAll('div[data-testid="stExpander"] > details > div');
+            for (var i = 0; i < expanders.length; i++) {
+                expanders[i].scrollTop = expanders[i].scrollHeight;
+            }
+        }, 200);
+    </script>
+    """, height=0, width=0)
 
 st.title(T["title"])
 st.markdown(T["description"])
@@ -305,9 +322,20 @@ if run_analysis:
             st.subheader(f"{T['analyze_market']}: {ticker} ({asset_type})")
             
             log_expander = st.expander("Analysis Log", expanded=True)
+            
+            # 用于存储日志消息的列表
+            if 'log_messages' not in st.session_state:
+                st.session_state.log_messages = []
 
             def log_to_streamlit(message):
-                log_expander.write(message)
+                # 添加消息到列表
+                st.session_state.log_messages.append(message)
+                # 清空expander并重新添加所有消息
+                log_expander.empty()
+                for msg in st.session_state.log_messages:
+                    log_expander.write(msg)
+                # 添加自动滚动组件
+                auto_scroll_to_bottom()
 
             spinner_text = T["spinner_analyzing"].format(ticker=ticker, asset_type=asset_type)
             with st.spinner(spinner_text):
@@ -380,9 +408,19 @@ if run_analysis:
             status_text = st.empty()
             
             log_expander = st.expander("Analysis Log", expanded=True)
+            
+            # 重置日志消息列表
+            st.session_state.log_messages = []
 
             def log_to_streamlit(message):
-                log_expander.write(message)
+                # 添加消息到列表
+                st.session_state.log_messages.append(message)
+                # 清空expander并重新添加所有消息
+                log_expander.empty()
+                for msg in st.session_state.log_messages:
+                    log_expander.write(msg)
+                # 添加自动滚动组件
+                auto_scroll_to_bottom()
             
             multi_analysis_config = config.copy()
             multi_analysis_config["max_debate_rounds"] = 1
