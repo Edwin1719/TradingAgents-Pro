@@ -162,6 +162,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# 添加 CSS 样式来限制 Analysis Log 的高度
+st.markdown("""
+<style>
+/* 限制 Analysis Log 的最大高度为页面一半 */
+div[data-testid="stExpander"] > details > div {
+    max-height: 50vh !important;
+    overflow-y: auto !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title(T["title"])
 st.markdown(T["description"])
 
