@@ -377,7 +377,8 @@ if run_analysis:
                         debug=False, 
                         config=single_analysis_config, 
                         selected_analysts=selected_analysts,
-                        log_callback=log_to_streamlit
+                        log_callback=log_to_streamlit,
+                        language=st.session_state.lang
                     )
                     formatted_date = analysis_date.strftime("%Y-%m-%d")
                     
@@ -476,7 +477,8 @@ if run_analysis:
                         debug=False, 
                         config=multi_analysis_config, 
                         selected_analysts=selected_analysts,
-                        log_callback=log_to_streamlit
+                        log_callback=log_to_streamlit,
+                        language=st.session_state.lang
                     )
                     formatted_date = analysis_date.strftime("%Y-%m-%d")
                     
