@@ -109,6 +109,19 @@ class TradingAgentsGraph:
         self.curr_state = None
         self.ticker = None
         self.log_states_dict = {}  # date to full state dict
+        self.log_step_mapping = {
+            "company_of_interest": "🎯 锁定目标: {company_of_interest}",
+            "trade_date": "🗓️ 设定行动日期: {trade_date}",
+            "market_report": "📈 市场部: 宏观趋势分析完毕，正在生成报告...",
+            "sentiment_report": "👥 情绪分析部: 市场情绪评估完成，正在解读信号...",
+            "news_report": "📰 新闻部: 关键情报已汇总，正在提炼要点...",
+            "fundamentals_report": "🏦 基本面部: 公司价值评估出炉，正在审查财报...",
+            "investment_debate_state": "🐂⚔️🐻 多空对决: 策略辩论结束，初步共识已形成。",
+            "trader_investment_plan": "✍️ 交易策略师: 初步交易草案已拟定，等待风控审核。",
+            "risk_debate_state": "🛡️ 风控部: 风险评估通过，交易计划已加固。",
+            "investment_plan": "📝 作战室: 最终交易计划已敲定，准备执行。",
+            "final_trade_decision": "🚀 交易执行: 指令已发出！等待市场回应...",
+        }
 
         # Set up the graph
         self.graph = self.graph_setup.setup_graph(selected_analysts)
@@ -178,7 +191,26 @@ class TradingAgentsGraph:
             if self.log_callback:
                 for key, value in chunk.items():
                     if value:
-                        self.log_callback(f"Step: {key} completed.")
+                        step_template = self.log_step_mapping.get(key, "✅ {step_name}: 操作完成")
+
+                        format_context = {
+                            "company_of_interest": init_agent_state.get("company_of_interest"),
+                            "trade_date": init_agent_state.get("trade_date"),
+                            "step_name": key,
+                        }
+
+                        if isinstance(value, dict):
+                            format_context.update(value)
+                        else:
+                            format_context[key] = value
+                        
+                        try:
+                            step_message = step_template.format(**format_context)
+                        except KeyError:
+                            step_message = f"✅ {key}: 操作完成 (细节信息不适用)"
+
+                        self.log_callback(step_message)
+
             final_state = chunk
 
         if self.log_callback:
