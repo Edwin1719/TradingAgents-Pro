@@ -2,7 +2,7 @@ import time
 import json
 
 
-def create_research_manager(llm, memory):
+def create_research_manager(llm, memory, config):
     def research_manager_node(state) -> dict:
         history = state["investment_debate_state"].get("history", "")
         market_research_report = state["market_report"]
@@ -19,25 +19,29 @@ def create_research_manager(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""IMPORTANTE: Responde SIEMPRE en español. Todos los análisis, reportes y decisiones deben estar en español.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-Como el gestor de portafolio y facilitador del debate, tu papel es evaluar críticamente esta ronda de debate y tomar una decisión definitiva: alinearte con el analista pesimista, el analista optimista, o elegir Mantener solo si está fuertemente justificado basado en los argumentos presentados.
+        task_prompt = f"""As the portfolio manager and debate facilitator, your role is to critically evaluate this round of debate and make a definitive decision: side with the bearish analyst, the bullish analyst, or choose to Hold only if strongly justified based on the arguments presented.
 
-Resume los puntos clave de ambos lados de manera concisa, enfocándote en la evidencia o razonamiento más convincente. Tu recomendación—Comprar, Vender, o Mantener—debe ser clara y accionable. Evita por defecto elegir Mantener simplemente porque ambos lados tienen puntos válidos; comprométete con una postura fundamentada en los argumentos más fuertes del debate.
+Summarize the key points from both sides concisely, focusing on the most compelling evidence or reasoning. Your recommendation—Buy, Sell, or Hold—should be clear and actionable. Avoid defaulting to Hold simply because both sides have valid points; commit to a stance grounded in the strongest arguments from the debate.
 
-Adicionalmente, desarrolla un plan de inversión detallado para el trader. Esto debe incluir:
+Additionally, develop a detailed investment plan for the trader. This should include:
 
-Tu Recomendación: Una postura decisiva apoyada por los argumentos más convincentes.
-Justificación: Una explicación de por qué estos argumentos llevan a tu conclusión.
-Acciones Estratégicas: Pasos concretos para implementar la recomendación.
-Toma en cuenta tus errores pasados en situaciones similares. Usa estas perspectivas para refinar tu toma de decisiones y asegurar que estás aprendiendo y mejorando. Presenta tu análisis conversacionalmente, como si hablaras naturalmente, sin formato especial.
+Your Recommendation: A decisive stance supported by the most compelling arguments.
+Justification: An explanation of why these arguments lead to your conclusion.
+Strategic Actions: Concrete steps to implement the recommendation.
+Take into account your past mistakes in similar situations. Use these insights to refine your decision-making and ensure you are learning and improving. Present your analysis conversationally, as if speaking naturally, without special formatting.
 
-Aquí están tus reflexiones pasadas sobre errores:
+Here are your past reflections on mistakes:
 \"{past_memory_str}\"
 
-Aquí está el debate:
-Historia del Debate:
+Here is the debate:
+Debate History:
 {history}"""
+
+        prompt = f"{lang_instruction}\n{task_prompt}"
+        
         response = llm.invoke(prompt)
 
         new_investment_debate_state = {

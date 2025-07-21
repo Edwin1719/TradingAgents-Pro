@@ -37,6 +37,8 @@ class TradingAgentsGraph:
         selected_analysts=["market", "social", "news", "fundamentals"],
         debug=False,
         config: Dict[str, Any] = None,
+        log_callback: Optional[callable] = None,
+        language: str = "zh",
     ):
         """Initialize the trading agents graph and components.
 
@@ -44,9 +46,13 @@ class TradingAgentsGraph:
             selected_analysts: List of analyst types to include
             debug: Whether to run in debug mode
             config: Configuration dictionary. If None, uses default config
+            log_callback: Optional callable for logging updates.
+            language: Language for the log messages ('en' or 'zh').
         """
         self.debug = debug
         self.config = config or DEFAULT_CONFIG
+        self.log_callback = log_callback
+        self.language = language
 
         # Update the interface's config
         set_config(self.config)
@@ -95,6 +101,7 @@ class TradingAgentsGraph:
             self.invest_judge_memory,
             self.risk_manager_memory,
             self.conditional_logic,
+            self.config,  # Pass config to GraphSetup
         )
 
         self.propagator = Propagator()
@@ -105,6 +112,34 @@ class TradingAgentsGraph:
         self.curr_state = None
         self.ticker = None
         self.log_states_dict = {}  # date to full state dict
+        self.log_step_mapping = {
+            'zh': {
+                "company_of_interest": "---\n### 🎯 **交易员指令已确认**\n- **分析目标:** {company_of_interest}",
+                "trade_date": "- **分析日期:** {trade_date}\n---",
+                "market_report": "### 📈 **阶段1: 分析师团队启动**\n- **市场分析师** 已完成宏观趋势评估。",
+                "sentiment_report": "- **情绪分析师** 已完成市场情绪评估。",
+                "news_report": "- **新闻分析师** 已完成关键情报汇总。",
+                "fundamentals_report": "- **基本面分析师** 已完成公司价值评估。",
+                "investment_debate_state": "### ⚖️ **阶段2: 多空策略辩论**\n- **仲裁法官** 判定最终共识为: \n> {judge_decision}",
+                "trader_investment_plan": "### ✍️ **阶段3: 交易策略与风险评估**\n- **交易策略师** 已拟定初步交易草案。",
+                "risk_debate_state": "- **风险管理官** 已完成风险评估。",
+                "investment_plan": "### 📝 **阶段4: 生成最终计划**\n- **作战室** 已敲定最终交易计划。",
+                "final_trade_decision": "### 🚀 **阶段5: 输出最终决策**\n- **交易指令:** {action} (置信度: {confidence})"
+            },
+            'en': {
+                "company_of_interest": "---\n### 🎯 **Trader's Directive Confirmed**\n- **Analysis Target:** {company_of_interest}",
+                "trade_date": "- **Analysis Date:** {trade_date}\n---",
+                "market_report": "### 📈 **Phase 1: Analyst Team Kick-off**\n- **Market Analyst** has completed the macro trend assessment.",
+                "sentiment_report": "- **Sentiment Analyst** has completed the market sentiment assessment.",
+                "news_report": "- **News Analyst** has compiled key intelligence.",
+                "fundamentals_report": "- **Fundamentals Analyst** has completed the company valuation.",
+                "investment_debate_state": "### ⚖️ **Phase 2: Strategy Debate**\n- **The Judge** has determined the final consensus: \n> {judge_decision}",
+                "trader_investment_plan": "### ✍️ **Phase 3: Trading Strategy & Risk Assessment**\n- **Trading Strategist** has drafted a preliminary trade plan.",
+                "risk_debate_state": "- **Risk Management Officer** has completed the risk assessment.",
+                "investment_plan": "### 📝 **Phase 4: Final Plan Generation**\n- **War Room** has locked in the final trading plan.",
+                "final_trade_decision": "### 🚀 **Phase 5: Final Decision Output**\n- **Trade Order:** {action} (Confidence: {confidence})"
+            }
+        }
 
         # Set up the graph
         self.graph = self.graph_setup.setup_graph(selected_analysts)
@@ -159,26 +194,81 @@ class TradingAgentsGraph:
 
         self.ticker = company_name
 
+        # Add a starting message to the log
+        lang_templates = self.log_step_mapping.get(self.language, self.log_step_mapping['en'])
+        start_message = lang_templates.get("start_analysis", "Starting analysis for {company_name} on {trade_date}...").format(
+            company_name=company_name, 
+            trade_date=trade_date
+        )
+        if self.log_callback:
+            self.log_callback(start_message)
+
         # Initialize state
         init_agent_state = self.propagator.create_initial_state(
             company_name, trade_date
         )
         args = self.propagator.get_graph_args()
 
-        if self.debug:
-            # Debug mode with tracing
-            trace = []
-            for chunk in self.graph.stream(init_agent_state, **args):
-                if len(chunk["messages"]) == 0:
-                    pass
-                else:
-                    chunk["messages"][-1].pretty_print()
-                    trace.append(chunk)
+        # Replace invoke with stream to get real-time updates
+        final_state = None
+        logged_keys = set()
+        # Define a blacklist of keys to ignore in logging
+        log_blacklist = {"messages", "sender"}
 
-            final_state = trace[-1]
-        else:
-            # Standard mode without tracing
-            final_state = self.graph.invoke(init_agent_state, **args)
+        for chunk in self.graph.stream(init_agent_state, **args):
+            if self.log_callback:
+                for key, value in chunk.items():
+                    # Condition to log:
+                    # 1. Key has a value
+                    # 2. Key has not been logged before
+                    # 3. Key is not in the blacklist
+                    if value and key not in logged_keys and key not in log_blacklist:
+                        
+                        # Add "patience" for complex states: wait for the final piece of info
+                        if key == "investment_debate_state" and "judge_decision" not in value:
+                            continue
+                        if key == "risk_debate_state" and "judge_decision" not in value:
+                            continue
+                        if key == "final_trade_decision" and "action" not in value:
+                            continue
+
+                        logged_keys.add(key)
+                        
+                        # Select the language template
+                        lang_templates = self.log_step_mapping.get(self.language, self.log_step_mapping['en'])
+                        step_template = lang_templates.get(key)
+
+                        # If no specific template, skip logging
+                        if not step_template:
+                            continue
+
+                        # Prepare context for formatting, starting with the initial state
+                        format_context = init_agent_state.copy()
+                        
+                        # If the value is a dictionary, update the context with it
+                        if isinstance(value, dict):
+                            format_context.update(value)
+                        # Otherwise, add the value directly to the context
+                        else:
+                            format_context[key] = value
+                        
+                        # Format the message with robust error handling
+                        try:
+                            # Use a dictionary comprehension to filter only the keys needed for the template
+                            # This avoids KeyErrors for templates that don't need all context variables
+                            template_keys = [k[1] for k in __import__('string').Formatter().parse(step_template) if k[1] is not None]
+                            filtered_context = {k: format_context.get(k, f'{{{k}}}') for k in template_keys}
+                            step_message = step_template.format(**filtered_context)
+                            self.log_callback(step_message)
+                        except KeyError as e:
+                            # This fallback is less likely to be needed now, but good to have
+                            print(f"[Log Formatting Error] Key {e} not found for template: {step_template}")
+
+
+            final_state = chunk
+
+        if self.log_callback:
+            self.log_callback("Analysis complete. Processing final decision...")
 
         # Store current state for reflection
         self.curr_state = final_state

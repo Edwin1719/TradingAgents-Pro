@@ -2,7 +2,7 @@ import time
 import json
 
 
-def create_risky_debator(llm):
+def create_risky_debator(llm, config):
     def risky_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
@@ -18,21 +18,24 @@ def create_risky_debator(llm):
 
         trader_decision = state["trader_investment_plan"]
 
-        prompt = f"""IMPORTANTE: Responde SIEMPRE en español. Todos los análisis, reportes y decisiones deben estar en español.
+        # Get language instruction from config
+        lang_instruction = config.get("language_instruction", "IMPORTANT: Always respond in English.")
 
-Como el Analista de Riesgo Agresivo, tu papel es defender activamente oportunidades de alta recompensa y alto riesgo, enfatizando estrategias audaces y ventajas competitivas. Al evaluar la decisión o plan del trader, enfócate intensamente en el potencial al alza, potencial de crecimiento, y beneficios innovadores—incluso cuando estos vengan con riesgo elevado. Usa los datos de mercado y análisis de sentimiento proporcionados para fortalecer tus argumentos y desafiar las opiniones opuestas. Específicamente, responde directamente a cada punto hecho por los analistas conservador y neutral, contrarrestando con refutaciones basadas en datos y razonamiento persuasivo. Destaca dónde su cautela podría perderse oportunidades críticas o dónde sus suposiciones pueden ser demasiado conservadoras. Aquí está la decisión del trader:
+        task_prompt = f"""As the Aggressive Risk Analyst, your role is to actively advocate for high-reward, high-risk opportunities, emphasizing bold strategies and competitive advantages. When evaluating the trader's decision or plan, focus intensely on upside potential, growth potential, and innovative benefits—even when these come with elevated risk. Use the provided market data and sentiment analysis to strengthen your arguments and challenge opposing views. Specifically, respond directly to each point made by the conservative and neutral analysts, countering with data-driven rebuttals and persuasive reasoning. Highlight where their caution might miss critical opportunities or where their assumptions may be too conservative. Here is the trader's decision:
 
 {trader_decision}
 
-Tu tarea es crear un caso convincente para la decisión del trader cuestionando y criticando las posturas conservadora y neutral para demostrar por qué tu perspectiva de alta recompensa ofrece el mejor camino hacia adelante. Incorpora perspectivas de las siguientes fuentes en tus argumentos:
+Your task is to create a compelling case for the trader's decision by questioning and criticizing the conservative and neutral stances to demonstrate why your high-reward perspective offers the best path forward. Incorporate insights from the following sources into your arguments:
 
-Reporte de Investigación de Mercado: {market_research_report}
-Reporte de Sentimiento de Redes Sociales: {sentiment_report}
-Reporte de Últimos Asuntos Mundiales: {news_report}
-Reporte de Fundamentos de la Empresa: {fundamentals_report}
-Aquí está el historial actual de conversación: {history} Aquí están los últimos argumentos del analista conservador: {current_safe_response} Aquí están los últimos argumentos del analista neutral: {current_neutral_response}. Si no hay respuestas de los otros puntos de vista, no alucines y solo presenta tu punto.
+Market Research Report: {market_research_report}
+Social Media Sentiment Report: {sentiment_report}
+Latest World Affairs Report: {news_report}
+Company Fundamentals Report: {fundamentals_report}
+Here is the current conversation history: {history} Here are the latest arguments from the conservative analyst: {current_safe_response} Here are the latest arguments from the neutral analyst: {current_neutral_response}. If there are no responses from the other viewpoints, do not hallucinate and just present your point.
 
-Comprómetete activamente abordando cualquier preocupación específica planteada, refutando las debilidades en su lógica, y afirmando los beneficios de tomar riesgos para superar las normas del mercado. Mantén un enfoque en debatir y persuadir, no solo presentar datos. Desafía cada contrapunto para subrayar por qué un enfoque de alto riesgo es óptimo. Responde conversacionalmente como si estuvieras hablando sin ningún formato especial."""
+Actively engage by addressing any specific concerns raised, rebutting weaknesses in their logic, and asserting the benefits of risk-taking to outperform market norms. Maintain a focus on debating and persuading, not just presenting data. Challenge each counterpoint to underscore why a high-risk approach is optimal. Respond conversationally as if you were speaking without any special formatting."""
+
+        prompt = f"{lang_instruction}\n{task_prompt}"
 
         response = llm.invoke(prompt)
 
