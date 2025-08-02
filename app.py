@@ -234,11 +234,11 @@ with st.sidebar:
     if os.path.exists('.env'):
         load_dotenv()
 
-    openai_api_key = st.text_input(T["openai_api_key"], type="password", value=os.getenv("OPENAI_API_KEY") or "")
-    openai_api_base = st.text_input(T["openai_api_base"], value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1")
-    finnhub_api_key = st.text_input(T["finnhub_api_key"], type="password", value=os.getenv("FINNHUB_API_KEY") or "")
-    arkham_api_key = st.text_input(T["arkham_api_key"], type="password", value=os.getenv("ARKHAM_API_KEY") or "")
-    arkham_api_secret = st.text_input(T["arkham_api_secret"], type="password", value=os.getenv("ARKHAM_API_SECRET") or "")
+    openai_api_key = st.text_input(T["openai_api_key"], type="password", value=os.getenv("OPENAI_API_KEY") or "", key="openai_api_key")
+    openai_api_base = st.text_input(T["openai_api_base"], value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1", key="openai_api_base")
+    finnhub_api_key = st.text_input(T["finnhub_api_key"], type="password", value=os.getenv("FINNHUB_API_KEY") or "", key="finnhub_api_key")
+    arkham_api_key = st.text_input(T["arkham_api_key"], type="password", value=os.getenv("ARKHAM_API_KEY") or "", key="arkham_api_key")
+    arkham_api_secret = st.text_input(T["arkham_api_secret"], type="password", value=os.getenv("ARKHAM_API_SECRET") or "", key="arkham_api_secret")
     
     st.header(T["agent_params_header"])
     
