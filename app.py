@@ -17,9 +17,6 @@ translations = {
         "openai_api_key": "OpenAI API Key",
         "openai_api_base": "OpenAI API Base URL",
         "finnhub_api_key": "Finnhub API Key",
-        "arkham_api_key": "Arkham API Key",
-        "arkham_api_secret": "Arkham API Secret",
-        "arkham_api_secret": "Arkham API Secret",
         "agent_params_header": "⚙️ Agent Parameters",
         "asset_category": "Asset Category",
         "categories": ["Cryptocurrencies", "Tech Stocks", "Blue Chip Stocks", "Indices", "Custom"],
@@ -51,7 +48,6 @@ translations = {
         "social_analysis": "📱 Social Sentiment Analysis",
         "news_analysis": "📰 News Analysis",
         "fundamentals_analysis": "📊 Fundamental Analysis",
-        "whale_tracking": "🐳 Whale Tracking",
         "fundamentals_na": "Not available for cryptocurrencies.",
         "researcher_debate": "⚖️ Researcher Debate (Bull vs Bear)",
         "trader_proposal": "💼 Trader's Proposal",
@@ -85,8 +81,6 @@ translations = {
         "openai_api_key": "OpenAI API 密钥",
         "openai_api_base": "OpenAI API 基础 URL",
         "finnhub_api_key": "Finnhub API 密钥",
-        "arkham_api_key": "Arkham API 密钥",
-        "arkham_api_secret": "Arkham API 密钥",
         "agent_params_header": "⚙️ 代理参数",
         "asset_category": "资产类别",
         "categories": ["加密货币", "科技股", "蓝筹股", "指数", "自定义"],
@@ -118,7 +112,6 @@ translations = {
         "social_analysis": "📱 社交情绪分析",
         "news_analysis": "📰 新闻分析",
         "fundamentals_analysis": "📊 基本面分析",
-        "whale_tracking": "🐳 巨鲸追踪",
         "fundamentals_na": "不适用于加密货币。",
         "researcher_debate": "⚖️ 研究员辩论 (牛市 vs 熊市)",
         "trader_proposal": "💼 交易员提案",
@@ -237,8 +230,6 @@ with st.sidebar:
     openai_api_key = st.text_input(T["openai_api_key"], type="password", value=os.getenv("OPENAI_API_KEY") or "")
     openai_api_base = st.text_input(T["openai_api_base"], value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1")
     finnhub_api_key = st.text_input(T["finnhub_api_key"], type="password", value=os.getenv("FINNHUB_API_KEY") or "")
-    arkham_api_key = st.text_input(T["arkham_api_key"], type="password", value=os.getenv("ARKHAM_API_KEY") or "")
-    arkham_api_secret = st.text_input(T["arkham_api_secret"], type="password", value=os.getenv("ARKHAM_API_SECRET") or "")
     
     st.header(T["agent_params_header"])
     
@@ -320,8 +311,6 @@ if run_analysis:
         os.environ["OPENAI_API_KEY"] = openai_api_key
         os.environ["OPENAI_API_BASE"] = openai_api_base
         os.environ["FINNHUB_API_KEY"] = finnhub_api_key
-        os.environ["ARKHAM_API_KEY"] = arkham_api_key
-        os.environ["ARKHAM_API_SECRET"] = arkham_api_secret
         
         def detect_asset_type(ticker):
             if ticker.endswith("-USD") or ticker.endswith("-EUR") or ticker.endswith("-USDT"):
@@ -333,7 +322,7 @@ if run_analysis:
         
         def get_analysts_for_asset(asset_type):
             if asset_type == "crypto":
-                return ["market", "social", "news", "whale_tracking"]
+                return ["market", "social", "news"]
             elif asset_type == "index":
                 return ["market", "news"]
             else:
@@ -437,9 +426,6 @@ if run_analysis:
                     if state.get("fundamentals_report"):
                         with st.expander(T["fundamentals_analysis"]):
                             st.write(state.get("fundamentals_report", T["fundamentals_na"]))
-
-                    with st.expander(T["whale_tracking"]):
-                        st.write(state.get("whale_tracking_report", T["no_results"]))
 
                     with st.expander(T["researcher_debate"]):
                         investment_debate = state.get("investment_debate_state", {})
@@ -577,9 +563,6 @@ if run_analysis:
                         if state.get("fundamentals_report"):
                             with st.expander(T["fundamentals_analysis"]):
                                 st.write(state.get("fundamentals_report", T["fundamentals_na"]))
-
-                        with st.expander(T["whale_tracking"]):
-                            st.write(state.get("whale_tracking_report", T["no_results"]))
 
                         with st.expander(T["researcher_debate"]):
                             investment_debate = state.get("investment_debate_state", {})

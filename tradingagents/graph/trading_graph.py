@@ -13,7 +13,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import ToolNode
 
 from tradingagents.agents import *
-from tradingagents.agents.analysts.arkham_analyst import ArkhamAnalyst
 from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.agents.utils.memory import FinancialSituationMemory
 from tradingagents.agents.utils.agent_states import (
@@ -78,10 +77,6 @@ class TradingAgentsGraph:
             raise ValueError(f"Unsupported LLM provider: {self.config['llm_provider']}")
         
         self.toolkit = Toolkit(config=self.config)
-        self.arkham_analyst = ArkhamAnalyst(
-            api_key=self.config.get("ARKHAM_API_KEY"),
-            api_secret=self.config.get("ARKHAM_API_SECRET")
-        )
 
         # Initialize memories
         self.bull_memory = FinancialSituationMemory("bull_memory", self.config)
@@ -107,7 +102,6 @@ class TradingAgentsGraph:
             self.risk_manager_memory,
             self.conditional_logic,
             self.config,  # Pass config to GraphSetup
-            self.arkham_analyst, # Pass arkham analyst
         )
 
         self.propagator = Propagator()
@@ -126,7 +120,6 @@ class TradingAgentsGraph:
                 "sentiment_report": "- **情绪分析师** 已完成市场情绪评估。",
                 "news_report": "- **新闻分析师** 已完成关键情报汇总。",
                 "fundamentals_report": "- **基本面分析师** 已完成公司价值评估。",
-                "whale_tracking_report": "- **巨鲸追踪分析师** 已完成链上大额异动监控。",
                 "investment_debate_state": "### ⚖️ **阶段2: 多空策略辩论**\n- **仲裁法官** 判定最终共识为: \n> {judge_decision}",
                 "trader_investment_plan": "### ✍️ **阶段3: 交易策略与风险评估**\n- **交易策略师** 已拟定初步交易草案。",
                 "risk_debate_state": "- **风险管理官** 已完成风险评估。",
@@ -140,7 +133,6 @@ class TradingAgentsGraph:
                 "sentiment_report": "- **Sentiment Analyst** has completed the market sentiment assessment.",
                 "news_report": "- **News Analyst** has compiled key intelligence.",
                 "fundamentals_report": "- **Fundamentals Analyst** has completed the company valuation.",
-                "whale_tracking_report": "- **Whale Tracking Analyst** has completed on-chain large transaction monitoring.",
                 "investment_debate_state": "### ⚖️ **Phase 2: Strategy Debate**\n- **The Judge** has determined the final consensus: \n> {judge_decision}",
                 "trader_investment_plan": "### ✍️ **Phase 3: Trading Strategy & Risk Assessment**\n- **Trading Strategist** has drafted a preliminary trade plan.",
                 "risk_debate_state": "- **Risk Management Officer** has completed the risk assessment.",
@@ -195,7 +187,6 @@ class TradingAgentsGraph:
                     self.toolkit.get_simfin_income_stmt,
                 ]
             ),
-            "whale_tracking": ToolNode([self.arkham_analyst.analyze]),
         }
 
     def propagate(self, company_name, trade_date):
@@ -297,7 +288,6 @@ class TradingAgentsGraph:
             "sentiment_report": final_state["sentiment_report"],
             "news_report": final_state["news_report"],
             "fundamentals_report": final_state["fundamentals_report"],
-            "whale_tracking_report": final_state.get("whale_tracking_report"),
             "investment_debate_state": {
                 "bull_history": final_state["investment_debate_state"]["bull_history"],
                 "bear_history": final_state["investment_debate_state"]["bear_history"],

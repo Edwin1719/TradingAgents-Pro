@@ -28,7 +28,6 @@ class GraphSetup:
         risk_manager_memory,
         conditional_logic: ConditionalLogic,
         config: Dict[str, Any],  # Add config here
-        arkham_analyst: Any, # Add arkham_analyst here
     ):
         """Initialize with required components."""
         self.quick_thinking_llm = quick_thinking_llm
@@ -42,7 +41,6 @@ class GraphSetup:
         self.risk_manager_memory = risk_manager_memory
         self.conditional_logic = conditional_logic
         self.config = config  # Store config
-        self.arkham_analyst = arkham_analyst
 
     def setup_graph(
         self, selected_analysts=["market", "social", "news", "fundamentals"]
@@ -94,11 +92,6 @@ class GraphSetup:
             )
             delete_nodes["fundamentals"] = create_msg_delete()
             tool_nodes["fundamentals"] = self.tool_nodes["fundamentals"]
-
-        if "whale_tracking" in selected_analysts:
-            analyst_nodes["whale_tracking"] = self.arkham_analyst.analyze
-            delete_nodes["whale_tracking"] = create_msg_delete()
-            tool_nodes["whale_tracking"] = self.tool_nodes["whale_tracking"]
 
         # Create researcher and manager nodes
         bull_researcher_node = create_bull_researcher(
