@@ -43,7 +43,6 @@ class GraphSetup:
         self.conditional_logic = conditional_logic
         self.config = config  # Store config
         self.arkham_analyst = arkham_analyst
-        self.arkham_analyst = arkham_analyst
 
     def setup_graph(
         self, selected_analysts=["market", "social", "news", "fundamentals"]
