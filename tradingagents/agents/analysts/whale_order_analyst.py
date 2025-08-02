@@ -21,23 +21,28 @@ class WhaleOrderAnalyst:
         if not symbol:
             return {"whale_report": "**Whale Order Analysis Error**: Missing symbol in agent state."}
 
+        # Load the data using the new utility function
         large_orders_df = load_large_orders_data(symbol, time_window_hours=24)
 
         if large_orders_df.empty:
-            return {"whale_report": f"**Whale Order Analysis ({symbol}) - Last 24 Hours**\n\n*No recent large order data found."}
+            return {"whale_report": f"**Whale Order Analysis ({symbol}) - Last 24 Hours**\n\n*No recent large order data found.*"}
 
+        # Separate buys and sells
         buys = large_orders_df[large_orders_df['type'] == 'buy']
         sells = large_orders_df[large_orders_df['type'] == 'sell']
 
+        # Calculate total values
         total_buy_value = buys['value_usdt'].sum()
         total_sell_value = sells['value_usdt'].sum()
         net_flow = total_buy_value - total_sell_value
-        
+
         buy_order_count = len(buys)
         sell_order_count = len(sells)
 
         pressure_ratio = total_buy_value / total_sell_value if total_sell_value > 0 else float('inf')
 
+
+        # Determine net flow color and sign
         if net_flow > 0:
             net_flow_color = 'green'
             net_flow_sign = '+'
@@ -53,9 +58,11 @@ class WhaleOrderAnalyst:
             else:
                 conclusion = "The data points to a **mildly bearish sentiment**. There is a net outflow of funds, suggesting more selling than buying. However, the pressure is not extreme, indicating cautious selling or profit-taking rather than panic selling."
 
+        # Find the largest buy and sell orders
         largest_buy_order = buys.loc[buys['value_usdt'].idxmax()] if not buys.empty else None
         largest_sell_order = sells.loc[sells['value_usdt'].idxmax()] if not sells.empty else None
 
+        # Format the report
         report_lines = [
             f"**Whale Order Analysis ({symbol}) - Last 24 Hours**",
             "---",
