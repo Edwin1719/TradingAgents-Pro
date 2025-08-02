@@ -229,8 +229,11 @@ def convert_crypto_symbol(symbol):
         return f"{base_currency}/USDT"
     return symbol
 
+# 从环境变量获取默认的最小订单金额阈值，默认为100000
+DEFAULT_MIN_AMOUNT = int(os.getenv('BINANCE_MIN_ORDER_AMOUNT', 100000))
+
 # 添加函数：为加密货币启动后台追踪线程
-def start_crypto_tracking_threads(crypto_assets, min_amount=100000, interval=60):
+def start_crypto_tracking_threads(crypto_assets, min_amount=DEFAULT_MIN_AMOUNT, interval=60):
     """
     为加密货币资产启动后台追踪线程
     
