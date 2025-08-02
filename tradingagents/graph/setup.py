@@ -69,7 +69,7 @@ class GraphSetup:
         
         if "whale" in selected_analysts:
             # The analyst class is instantiated and its method is used as the node
-            whale_analyst_instance = WhaleOrderAnalyst()
+            whale_analyst_instance = WhaleOrderAnalyst(config=self.config)
             analyst_nodes["whale"] = whale_analyst_instance.analyze
             delete_nodes["whale"] = create_msg_delete()
             # Whale analyst does not use external tools, so we provide an empty tool node
