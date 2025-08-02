@@ -48,6 +48,7 @@ translations = {
         "social_analysis": "📱 Social Sentiment Analysis",
         "news_analysis": "📰 News Analysis",
         "fundamentals_analysis": "📊 Fundamental Analysis",
+        "whale_order_analysis": "🐳 Whale Order Analysis",
         "fundamentals_na": "Not available for cryptocurrencies.",
         "researcher_debate": "⚖️ Researcher Debate (Bull vs Bear)",
         "trader_proposal": "💼 Trader's Proposal",
@@ -112,6 +113,7 @@ translations = {
         "social_analysis": "📱 社交情绪分析",
         "news_analysis": "📰 新闻分析",
         "fundamentals_analysis": "📊 基本面分析",
+        "whale_order_analysis": "🐳 巨鲸订单分析",
         "fundamentals_na": "不适用于加密货币。",
         "researcher_debate": "⚖️ 研究员辩论 (牛市 vs 熊市)",
         "trader_proposal": "💼 交易员提案",
@@ -385,7 +387,7 @@ if run_analysis:
 
         def get_analysts_for_asset(asset_type):
             if asset_type == "crypto":
-                return ["market", "social", "news"]
+                return ["whale", "market", "social", "news"]
             elif asset_type == "index":
                 return ["market", "news"]
             else:
@@ -494,6 +496,10 @@ if run_analysis:
                     if state.get("fundamentals_report"):
                         with st.expander(T["fundamentals_analysis"]):
                             st.write(state.get("fundamentals_report", T["fundamentals_na"]))
+
+                    if state.get("whale_report"):
+                        with st.expander("🐳 Whale Order Analysis"):
+                            st.markdown(state.get("whale_report"), unsafe_allow_html=True)
 
                     with st.expander(T["researcher_debate"]):
                         investment_debate = state.get("investment_debate_state", {})
@@ -636,6 +642,10 @@ if run_analysis:
                         if state.get("fundamentals_report"):
                             with st.expander(T["fundamentals_analysis"]):
                                 st.write(state.get("fundamentals_report", T["fundamentals_na"]))
+
+                        if state.get("whale_report"):
+                            with st.expander("🐳 Whale Order Analysis"):
+                                st.markdown(state.get("whale_report"), unsafe_allow_html=True)
 
                         with st.expander(T["researcher_debate"]):
                             investment_debate = state.get("investment_debate_state", {})

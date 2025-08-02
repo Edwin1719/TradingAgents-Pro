@@ -34,7 +34,7 @@ class TradingAgentsGraph:
 
     def __init__(
         self,
-        selected_analysts=["market", "social", "news", "fundamentals"],
+        selected_analysts=["whale", "market", "social", "news", "fundamentals"],
         debug=False,
         config: Dict[str, Any] = None,
         log_callback: Optional[callable] = None,
@@ -147,6 +147,7 @@ class TradingAgentsGraph:
     def _create_tool_nodes(self) -> Dict[str, ToolNode]:
         """Create tool nodes for different data sources."""
         return {
+            "whale": ToolNode([]),
             "market": ToolNode(
                 [
                     # online tools
@@ -288,6 +289,7 @@ class TradingAgentsGraph:
             "sentiment_report": final_state["sentiment_report"],
             "news_report": final_state["news_report"],
             "fundamentals_report": final_state["fundamentals_report"],
+            "whale_report": final_state.get("whale_report", "Not available"),
             "investment_debate_state": {
                 "bull_history": final_state["investment_debate_state"]["bull_history"],
                 "bear_history": final_state["investment_debate_state"]["bear_history"],
