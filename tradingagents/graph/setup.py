@@ -6,6 +6,7 @@ from langgraph.graph import END, StateGraph, START
 from langgraph.prebuilt import ToolNode
 
 from tradingagents.agents import *
+from tradingagents.agents.analysts.whale_order_analyst import WhaleOrderAnalyst
 from tradingagents.agents.utils.agent_states import AgentState
 from tradingagents.agents.utils.agent_utils import Toolkit
 
@@ -43,7 +44,7 @@ class GraphSetup:
         self.config = config  # Store config
 
     def setup_graph(
-        self, selected_analysts=["market", "social", "news", "fundamentals"]
+        self, selected_analysts=["market", "social", "news", "fundamentals", "whale"]
     ):
         """Set up and compile the agent workflow graph.
 
@@ -53,6 +54,7 @@ class GraphSetup:
                 - "social": Social media analyst
                 - "news": News analyst
                 - "fundamentals": Fundamentals analyst
+                - "whale": Whale order analyst
         """ 
         if len(selected_analysts) == 0:
             raise ValueError("Trading Agents Graph Setup Error: no analysts selected!")
@@ -64,6 +66,15 @@ class GraphSetup:
 
         # Pass the config to the agent creation functions
         agent_config = {"config": self.config}
+        
+        if "whale" in selected_analysts:
+            # The analyst class is instantiated and its method is used as the node
+            whale_analyst_instance = WhaleOrderAnalyst()
+            analyst_nodes["whale"] = whale_analyst_instance.analyze
+            delete_nodes["whale"] = create_msg_delete()
+            # Whale analyst does not use external tools, so we provide an empty tool node
+            tool_nodes["whale"] = ToolNode([])
+
 
         if "market" in selected_analysts:
             analyst_nodes["market"] = create_market_analyst(
@@ -122,7 +133,8 @@ class GraphSetup:
             workflow.add_node(
                 f"Msg Clear {analyst_type.capitalize()}", delete_nodes[analyst_type]
             )
-            workflow.add_node(f"tools_{analyst_type}", tool_nodes[analyst_type])
+            if analyst_type != 'whale': # Whale analyst has no tools
+                workflow.add_node(f"tools_{analyst_type}", tool_nodes[analyst_type])
 
         # Add other nodes
         workflow.add_node("Bull Researcher", bull_researcher_node)
@@ -142,16 +154,19 @@ class GraphSetup:
         # Connect analysts in sequence
         for i, analyst_type in enumerate(selected_analysts):
             current_analyst = f"{analyst_type.capitalize()} Analyst"
-            current_tools = f"tools_{analyst_type}"
             current_clear = f"Msg Clear {analyst_type.capitalize()}"
 
-            # Add conditional edges for current analyst
-            workflow.add_conditional_edges(
-                current_analyst,
-                getattr(self.conditional_logic, f"should_continue_{analyst_type}"),
-                [current_tools, current_clear],
-            )
-            workflow.add_edge(current_tools, current_analyst)
+            if analyst_type == 'whale':
+                workflow.add_edge(current_analyst, current_clear)
+            else:
+                current_tools = f"tools_{analyst_type}"
+                # Add conditional edges for current analyst
+                workflow.add_conditional_edges(
+                    current_analyst,
+                    getattr(self.conditional_logic, f"should_continue_{analyst_type}"),
+                    [current_tools, current_clear],
+                )
+                workflow.add_edge(current_tools, current_analyst)
 
             # Connect to next analyst or to Bull Researcher if this is the last analyst
             if i < len(selected_analysts) - 1:
