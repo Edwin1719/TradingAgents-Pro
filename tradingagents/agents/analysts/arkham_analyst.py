@@ -1,4 +1,5 @@
-from tradingagents.dataflows.arkham_utils import get_arkham_public_trades, format_arkham_trades
+
+from tradingagents.dataflows.arkham_utils import get_arkham_transactions, format_arkham_transactions
 
 class ArkhamAnalyst:
     def __init__(self, api_key, api_secret):
@@ -7,16 +8,12 @@ class ArkhamAnalyst:
 
     def analyze(self, asset):
         """
-        Analyzes whale activity for a given asset by fetching public trades from Arkham Exchange.
-        The 'asset' parameter should be in a format like 'BTC_USDT'.
+        Analyzes whale activity for a given asset using Arkham Intelligence.
         """
         if not self.api_key or not self.api_secret:
             return "Arkham API Key or Secret not provided."
         
-        # Convert asset ticker from "BTC-USD" to "BTC_USDT" format if needed
-        # This is a simple assumption, a more robust mapping might be required
-        pair = asset.replace("-", "_").replace("USD", "USDT")
-
-        trades = get_arkham_public_trades(self.api_key, self.api_secret, pair)
-        report = format_arkham_trades(trades)
+        # The asset symbol (e.g., "BTC") is passed to the analysis function.
+        transactions = get_arkham_transactions(self.api_key, self.api_secret, asset)
+        report = format_arkham_transactions(transactions)
         return report
