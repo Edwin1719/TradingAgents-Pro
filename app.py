@@ -6,6 +6,11 @@ from dotenv import load_dotenv
 # Importar los componentes necesarios del framework de trading
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
+from tradingagents.ui_utils import popular_assets
+
+# --- Start background threads by importing the background module ---
+# This ensures threads are started once when the app boots, not on each session
+import tradingagents.background
 
 # --- Translation Dictionary ---
 translations = {
@@ -218,60 +223,6 @@ def update_auto_scroll():
         unsafe_allow_html=True
     )
 
-
-# 添加函数：将Yahoo Finance格式的加密货币符号转换为Binance格式
-def convert_crypto_symbol(symbol):
-    """
-    将Yahoo Finance格式的加密货币符号转换为Binance格式
-    例如: BTC-USD -> BTC/USDT
-    """
-    if symbol.endswith('-USD'):
-        base_currency = symbol[:-4]  # 移除'-USD'后缀
-        return f"{base_currency}/USDT"
-    return symbol
-
-
-# 从环境变量获取默认的最小订单金额阈值，默认为100000
-DEFAULT_MIN_AMOUNT = int(os.getenv('BINANCE_MIN_ORDER_AMOUNT', 100000))
-
-
-# 添加函数：为加密货币启动后台追踪线程
-def start_crypto_tracking_threads(crypto_assets, min_amount=DEFAULT_MIN_AMOUNT, interval=60):
-    """
-    为加密货币资产启动后台追踪线程
-    
-    Args:
-        crypto_assets (list): 加密货币资产列表，如 ['BTC-USD', 'ETH-USD']
-        min_amount (int): 最小订单金额阈值
-        interval (int): 检查间隔（秒）
-    """
-    from tradingagents.dataflows.binance_utils import start_tracker_thread
-
-    # 使用st.session_state跟踪已启动的线程，避免重复启动
-    if 'tracking_threads' not in st.session_state:
-        st.session_state.tracking_threads = set()
-
-    for asset in crypto_assets:
-        # 转换符号格式
-        binance_symbol = convert_crypto_symbol(asset)
-
-        # 检查是否已经为该资产启动了线程
-        if binance_symbol not in st.session_state.tracking_threads:
-            # 启动追踪线程
-            start_tracker_thread(binance_symbol, min_amount, interval)
-            st.session_state.tracking_threads.add(binance_symbol)
-            # st.info(f"已为 {asset} ({binance_symbol}) 启动后台数据收集线程")
-
-
-@st.cache_resource
-def start_crypto_tracking_once(crypto_assets):
-    """
-    使用 st.cache_resource 确保追踪线程只启动一次。
-    """
-    start_crypto_tracking_threads(crypto_assets)
-    return True
-
-
 st.title(T["title"])
 st.markdown(T["description"])
 
@@ -294,16 +245,6 @@ with st.sidebar:
         T["categories"]
     )
 
-    # Define popular assets by category
-    popular_assets = {
-        "Cryptocurrencies": ["BTC-USD", "ETH-USD", "ADA-USD", "SOL-USD", "MATIC-USD", "DOT-USD", "AVAX-USD",
-                             "LINK-USD"],
-        "Tech Stocks": ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA", "META", "AMZN", "NFLX"],
-        "Blue Chip Stocks": ["JPM", "JNJ", "KO", "PG", "WMT", "V", "MA", "DIS"],
-        "Indices": ["SPY", "QQQ", "IWM", "VTI", "GLD", "TLT", "VIX", "DXY"],
-        "Custom": []
-    }
-
     # Map categories for display
     category_map = {
         "Cryptocurrencies": "Cryptocurrencies",
@@ -322,11 +263,6 @@ with st.sidebar:
         }
 
     internal_category = category_map[asset_category]
-
-    # 如果是加密货币类别，为所有popular_assets中的加密货币启动追踪线程
-    # 使用 st.cache_resource 确保只在应用启动时启动一次
-    if internal_category == "Cryptocurrencies":
-        start_crypto_tracking_once(popular_assets[internal_category])
 
     if internal_category == "Custom":
         ticker = st.text_input(T["asset_ticker"], "BTC-USD")
@@ -363,6 +299,7 @@ with st.sidebar:
 
     button_text = f"🚀 {T['analyze_markets'] if len(selected_tickers) > 1 else T['analyze_market']}"
     run_analysis = st.button(button_text)
+
 
 # --- Main Application Area ---
 if run_analysis:
@@ -405,8 +342,7 @@ if run_analysis:
             config["language_instruction"] = "重要：请始终使用中文回答。所有分析、报告和决策都必须是中文。"
         else:
             config["language"] = "english"
-            config[
-                "language_instruction"] = "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English."
+            config["language_instruction"] = "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English."
 
         if len(selected_tickers) == 1:
             ticker = selected_tickers[0]
@@ -586,15 +522,15 @@ if run_analysis:
                     action = decision.get("action", "N/A") if isinstance(decision, dict) else "N/A"
                     confidence = decision.get("confidence", "N/A") if isinstance(decision, dict) else "N/A"
                     summary_data.append({
-                        T["summary_asset"]: ticker, T["summary_type"]: result["asset_type"],
-                        T["summary_action"]: action, T["summary_confidence"]: confidence,
-                        T["summary_status"]: T["summary_successful"]
+                        T["summary_asset" ]: ticker, T["summary_type" ]: result["asset_type"],
+                        T["summary_action" ]: action, T["summary_confidence" ]: confidence,
+                        T["summary_status" ]: T["summary_successful"]
                     })
                 else:
                     summary_data.append({
-                        T["summary_asset"]: ticker, T["summary_type"]: result["asset_type"],
-                        T["summary_action"]: "Error", T["summary_confidence"]: "N/A",
-                        T["summary_status"]: T["summary_error"]
+                        T["summary_asset" ]: ticker, T["summary_type" ]: result["asset_type"],
+                        T["summary_action" ]: "Error", T["summary_confidence" ]: "N/A",
+                        T["summary_status" ]: T["summary_error"]
                     })
 
             st.dataframe(summary_data)
