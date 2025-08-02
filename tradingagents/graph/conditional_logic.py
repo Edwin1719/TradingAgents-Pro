@@ -43,14 +43,6 @@ class ConditionalLogic:
             return "tools_fundamentals"
         return "Msg Clear Fundamentals"
 
-    def should_continue_whale_tracking(self, state: AgentState):
-        """Determine if whale tracking analysis should continue."""
-        messages = state["messages"]
-        last_message = messages[-1]
-        if last_message.tool_calls:
-            return "tools_whale_tracking"
-        return "Msg Clear Whale_tracking"
-
     def should_continue_debate(self, state: AgentState) -> str:
         """Determine if debate should continue."""
 
