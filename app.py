@@ -260,7 +260,7 @@ def start_crypto_tracking_threads(crypto_assets, min_amount=DEFAULT_MIN_AMOUNT, 
             # 启动追踪线程
             start_tracker_thread(binance_symbol, min_amount, interval)
             st.session_state.tracking_threads.add(binance_symbol)
-            st.info(f"已为 {asset} ({binance_symbol}) 启动后台数据收集线程")
+            # st.info(f"已为 {asset} ({binance_symbol}) 启动后台数据收集线程")
 
 
 @st.cache_resource
