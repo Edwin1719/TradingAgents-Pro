@@ -218,6 +218,44 @@ def update_auto_scroll():
         unsafe_allow_html=True
     )
 
+# 添加函数：将Yahoo Finance格式的加密货币符号转换为Binance格式
+def convert_crypto_symbol(symbol):
+    """
+    将Yahoo Finance格式的加密货币符号转换为Binance格式
+    例如: BTC-USD -> BTC/USDT
+    """
+    if symbol.endswith('-USD'):
+        base_currency = symbol[:-4]  # 移除'-USD'后缀
+        return f"{base_currency}/USDT"
+    return symbol
+
+# 添加函数：为加密货币启动后台追踪线程
+def start_crypto_tracking_threads(crypto_assets, min_amount=100000, interval=60):
+    """
+    为加密货币资产启动后台追踪线程
+    
+    Args:
+        crypto_assets (list): 加密货币资产列表，如 ['BTC-USD', 'ETH-USD']
+        min_amount (int): 最小订单金额阈值
+        interval (int): 检查间隔（秒）
+    """
+    from tradingagents.dataflows.binance_utils import start_tracker_thread
+    
+    # 使用st.session_state跟踪已启动的线程，避免重复启动
+    if 'tracking_threads' not in st.session_state:
+        st.session_state.tracking_threads = set()
+    
+    for asset in crypto_assets:
+        # 转换符号格式
+        binance_symbol = convert_crypto_symbol(asset)
+        
+        # 检查是否已经为该资产启动了线程
+        if binance_symbol not in st.session_state.tracking_threads:
+            # 启动追踪线程
+            start_tracker_thread(binance_symbol, min_amount, interval)
+            st.session_state.tracking_threads.add(binance_symbol)
+            st.info(f"已为 {asset} ({binance_symbol}) 启动后台数据收集线程")
+
 st.title(T["title"])
 st.markdown(T["description"])
 
@@ -266,6 +304,10 @@ with st.sidebar:
         }
     
     internal_category = category_map[asset_category]
+
+    # 如果是加密货币类别，为所有popular_assets中的加密货币启动追踪线程
+    if internal_category == "Cryptocurrencies":
+        start_crypto_tracking_threads(popular_assets[internal_category])
 
     if internal_category == "Custom":
         ticker = st.text_input(T["asset_ticker"], "BTC-USD")

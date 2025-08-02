@@ -144,7 +144,13 @@ class BinanceLargeOrdersTracker:
                 logger.info(f"[{self.symbol}] 程序结束，数据已保存")
 
 def start_tracker_thread(symbol, min_amount, interval):
-    """为单个资产启动追踪器线程"""
+    """为单个资产启动追踪器线程
+    
+    Args:
+        symbol (str): 交易对符号，例如 'BTC/USDT'
+        min_amount (float): 最小订单金额阈值
+        interval (int): 检查间隔（秒），默认为60秒
+    """
     tracker = BinanceLargeOrdersTracker(symbol=symbol, min_amount=min_amount)
     # 使用daemon=True可让主线程退出时子线程也退出
     thread = threading.Thread(target=tracker.track_orders, args=(interval,), daemon=True)
