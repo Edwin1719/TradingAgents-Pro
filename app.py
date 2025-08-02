@@ -140,6 +140,7 @@ translations = {
 }
 
 # --- Language Selection ---
+st.sidebar.image("assets/logo.png", use_container_width=True)
 if 'lang' not in st.session_state:
     st.session_state.lang = 'en'
 
