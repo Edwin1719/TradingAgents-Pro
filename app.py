@@ -154,7 +154,6 @@ selected_lang = st.sidebar.selectbox(
 st.session_state.lang = selected_lang
 T = translations[st.session_state.lang]
 
-
 # --- Streamlit Page Configuration ---
 st.set_page_config(
     page_title=T["page_title"],
@@ -188,12 +187,13 @@ div[data-testid="stExpander"] > details > div {
 if 'scroll_placeholder' not in st.session_state:
     st.session_state.scroll_placeholder = st.empty()
 
+
 # 添加自动滚动组件（每次都生成新的iframe）
 def update_auto_scroll():
     import time
     # 生成时间戳，确保每次更新iframe都是唯一的
     timestamp = int(time.time() * 1000)
-    
+
     # 使用session_state中的占位符更新自动滚动脚本
     st.session_state.scroll_placeholder.markdown(
         f"""
@@ -214,9 +214,10 @@ def update_auto_scroll():
         </script>
         " height="0" width="0" frameborder="0"></iframe>
         </div>
-        """, 
+        """,
         unsafe_allow_html=True
     )
+
 
 # 添加函数：将Yahoo Finance格式的加密货币符号转换为Binance格式
 def convert_crypto_symbol(symbol):
@@ -229,8 +230,10 @@ def convert_crypto_symbol(symbol):
         return f"{base_currency}/USDT"
     return symbol
 
+
 # 从环境变量获取默认的最小订单金额阈值，默认为100000
 DEFAULT_MIN_AMOUNT = int(os.getenv('BINANCE_MIN_ORDER_AMOUNT', 100000))
+
 
 # 添加函数：为加密货币启动后台追踪线程
 def start_crypto_tracking_threads(crypto_assets, min_amount=DEFAULT_MIN_AMOUNT, interval=60):
@@ -243,21 +246,31 @@ def start_crypto_tracking_threads(crypto_assets, min_amount=DEFAULT_MIN_AMOUNT, 
         interval (int): 检查间隔（秒）
     """
     from tradingagents.dataflows.binance_utils import start_tracker_thread
-    
+
     # 使用st.session_state跟踪已启动的线程，避免重复启动
     if 'tracking_threads' not in st.session_state:
         st.session_state.tracking_threads = set()
-    
+
     for asset in crypto_assets:
         # 转换符号格式
         binance_symbol = convert_crypto_symbol(asset)
-        
+
         # 检查是否已经为该资产启动了线程
         if binance_symbol not in st.session_state.tracking_threads:
             # 启动追踪线程
             start_tracker_thread(binance_symbol, min_amount, interval)
             st.session_state.tracking_threads.add(binance_symbol)
             st.info(f"已为 {asset} ({binance_symbol}) 启动后台数据收集线程")
+
+
+@st.cache_resource
+def start_crypto_tracking_once(crypto_assets):
+    """
+    使用 st.cache_resource 确保追踪线程只启动一次。
+    """
+    start_crypto_tracking_threads(crypto_assets)
+    return True
+
 
 st.title(T["title"])
 st.markdown(T["description"])
@@ -269,26 +282,28 @@ with st.sidebar:
         load_dotenv()
 
     openai_api_key = st.text_input(T["openai_api_key"], type="password", value=os.getenv("OPENAI_API_KEY") or "")
-    openai_api_base = st.text_input(T["openai_api_base"], value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1")
+    openai_api_base = st.text_input(T["openai_api_base"],
+                                    value=os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1")
     finnhub_api_key = st.text_input(T["finnhub_api_key"], type="password", value=os.getenv("FINNHUB_API_KEY") or "")
-    
+
     st.header(T["agent_params_header"])
-    
+
     # Asset category and selection
     asset_category = st.selectbox(
         T["asset_category"],
         T["categories"]
     )
-    
+
     # Define popular assets by category
     popular_assets = {
-        "Cryptocurrencies": ["BTC-USD", "ETH-USD", "ADA-USD", "SOL-USD", "MATIC-USD", "DOT-USD", "AVAX-USD", "LINK-USD"],
+        "Cryptocurrencies": ["BTC-USD", "ETH-USD", "ADA-USD", "SOL-USD", "MATIC-USD", "DOT-USD", "AVAX-USD",
+                             "LINK-USD"],
         "Tech Stocks": ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA", "META", "AMZN", "NFLX"],
         "Blue Chip Stocks": ["JPM", "JNJ", "KO", "PG", "WMT", "V", "MA", "DIS"],
         "Indices": ["SPY", "QQQ", "IWM", "VTI", "GLD", "TLT", "VIX", "DXY"],
         "Custom": []
     }
-    
+
     # Map categories for display
     category_map = {
         "Cryptocurrencies": "Cryptocurrencies",
@@ -305,17 +320,18 @@ with st.sidebar:
             "指数": "Indices",
             "自定义": "Custom"
         }
-    
+
     internal_category = category_map[asset_category]
 
     # 如果是加密货币类别，为所有popular_assets中的加密货币启动追踪线程
+    # 使用 st.cache_resource 确保只在应用启动时启动一次
     if internal_category == "Cryptocurrencies":
-        start_crypto_tracking_threads(popular_assets[internal_category])
+        start_crypto_tracking_once(popular_assets[internal_category])
 
     if internal_category == "Custom":
         ticker = st.text_input(T["asset_ticker"], "BTC-USD")
         analysis_mode = st.radio(T["analysis_mode"], [T["single_asset"], T["multiple_analysis"]])
-        
+
         if analysis_mode == T["multiple_analysis"]:
             custom_tickers = st.text_area(
                 T["tickers_comma_separated"],
@@ -327,7 +343,7 @@ with st.sidebar:
             selected_tickers = [ticker]
     else:
         analysis_mode = st.radio(T["analysis_mode"], [T["single_asset"], T["multiple_analysis"]])
-        
+
         if analysis_mode == T["multiple_analysis"]:
             selected_tickers = st.multiselect(
                 T["select_assets"],
@@ -337,9 +353,9 @@ with st.sidebar:
         else:
             ticker = st.selectbox(T["asset"], popular_assets[internal_category])
             selected_tickers = [ticker]
-    
+
     analysis_date = st.date_input(T["analysis_date"], datetime.today())
-    
+
     st.header(T["llm_header"])
     llm_provider = st.selectbox(T["llm_provider"], ["openai", "google", "anthropic"], index=0)
     deep_think_llm = st.text_input(T["main_model"], "gpt-4o")
@@ -356,7 +372,8 @@ if run_analysis:
         os.environ["OPENAI_API_KEY"] = openai_api_key
         os.environ["OPENAI_API_BASE"] = openai_api_base
         os.environ["FINNHUB_API_KEY"] = finnhub_api_key
-        
+
+
         def detect_asset_type(ticker):
             if ticker.endswith("-USD") or ticker.endswith("-EUR") or ticker.endswith("-USDT"):
                 return "crypto"
@@ -364,7 +381,8 @@ if run_analysis:
                 return "index"
             else:
                 return "stock"
-        
+
+
         def get_analysts_for_asset(asset_type):
             if asset_type == "crypto":
                 return ["market", "social", "news"]
@@ -372,7 +390,8 @@ if run_analysis:
                 return ["market", "news"]
             else:
                 return ["market", "social", "news", "fundamentals"]
-        
+
+
         # Setup config based on language
         config = DEFAULT_CONFIG.copy()
         config["llm_provider"] = llm_provider
@@ -380,20 +399,21 @@ if run_analysis:
         config["deep_think_llm"] = deep_think_llm
         config["quick_think_llm"] = quick_think_llm
         config["online_tools"] = True
-        
+
         if st.session_state.lang == 'zh':
             config["language"] = "chinese"
             config["language_instruction"] = "重要：请始终使用中文回答。所有分析、报告和决策都必须是中文。"
         else:
             config["language"] = "english"
-            config["language_instruction"] = "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English."
+            config[
+                "language_instruction"] = "IMPORTANT: Always respond in English. All analyses, reports, and decisions must be in English."
 
         if len(selected_tickers) == 1:
             ticker = selected_tickers[0]
             asset_type = detect_asset_type(ticker)
-            
+
             st.subheader(f"{T['analyze_market']}: {ticker} ({asset_type})")
-            
+
             # 创建一个占位符用于放置日志expander
             log_placeholder = st.empty()
             log_expander = log_placeholder.expander("Analysis Log", expanded=True)
@@ -401,6 +421,7 @@ if run_analysis:
             # 用于存储日志消息的列表
             if 'log_messages' not in st.session_state:
                 st.session_state.log_messages = []
+
 
             def log_to_streamlit(message):
                 # 添加消息到列表
@@ -412,22 +433,23 @@ if run_analysis:
                 # 触发自动滚动（使用全局占位符，但每次都生成新iframe）
                 update_auto_scroll()
 
+
             spinner_text = T["spinner_analyzing"].format(ticker=ticker, asset_type=asset_type)
             with st.spinner(spinner_text):
                 try:
                     single_analysis_config = config.copy()
                     single_analysis_config["max_debate_rounds"] = 2
-                    
+
                     selected_analysts = get_analysts_for_asset(asset_type)
                     ta = TradingAgentsGraph(
-                        debug=False, 
-                        config=single_analysis_config, 
+                        debug=False,
+                        config=single_analysis_config,
                         selected_analysts=selected_analysts,
                         log_callback=log_to_streamlit,
                         language=st.session_state.lang
                     )
                     formatted_date = analysis_date.strftime("%Y-%m-%d")
-                    
+
                     state, decision = ta.propagate(ticker, formatted_date)
 
                     # 分析完成后，重新创建日志expander，但默认收起
@@ -450,7 +472,8 @@ if run_analysis:
                     st.subheader(T["final_decision"].format(ticker=ticker))
                     if decision:
                         if isinstance(decision, str):
-                            decision_color = {"BUY": "green", "SELL": "red", "HOLD": "orange"}.get(decision.upper(), "blue")
+                            decision_color = {"BUY": "green", "SELL": "red", "HOLD": "orange"}.get(decision.upper(),
+                                                                                                   "blue")
                             st.markdown(f"### :{decision_color}[{decision.upper()}]")
                         else:
                             st.json(decision)
@@ -458,16 +481,16 @@ if run_analysis:
                         st.warning(T["no_decision"])
 
                     st.subheader(T["detailed_reports"])
-                    
+
                     with st.expander(T["market_analysis"]):
                         st.write(state.get("market_report", T["no_results"]))
-                    
+
                     with st.expander(T["social_analysis"]):
                         st.write(state.get("sentiment_report", T["no_results"]))
-                    
+
                     with st.expander(T["news_analysis"]):
                         st.write(state.get("news_report", T["no_results"]))
-                    
+
                     if state.get("fundamentals_report"):
                         with st.expander(T["fundamentals_analysis"]):
                             st.write(state.get("fundamentals_report", T["fundamentals_na"]))
@@ -475,29 +498,30 @@ if run_analysis:
                     with st.expander(T["researcher_debate"]):
                         investment_debate = state.get("investment_debate_state", {})
                         st.write(investment_debate.get("judge_decision", T["no_results"]))
-                    
+
                     with st.expander(T["trader_proposal"]):
-                            st.write(state.get("trader_investment_plan", T["no_results"]))
+                        st.write(state.get("trader_investment_plan", T["no_results"]))
 
                     with st.expander(T["risk_evaluation"]):
                         risk_debate = state.get("risk_debate_state", {})
                         st.write(risk_debate.get("judge_decision", T["no_results"]))
                 except Exception as e:
                     st.error(T["error_analysis"].format(e=e))
-        
+
         else:
             st.subheader(T["multiple_analysis_header"].format(num_assets=len(selected_tickers)))
-            
+
             results = {}
             progress_bar = st.progress(0)
             status_text = st.empty()
-            
+
             # 创建一个占位符用于放置日志expander
             log_placeholder = st.empty()
             log_expander = log_placeholder.expander("Analysis Log", expanded=True)
-            
+
             # 重置日志消息列表
             st.session_state.log_messages = []
+
 
             def log_to_streamlit(message):
                 # 添加消息到列表
@@ -508,36 +532,39 @@ if run_analysis:
                     log_expander.markdown(msg, unsafe_allow_html=True)
                 # 触发自动滚动（使用全局占位符，但每次都生成新iframe）
                 update_auto_scroll()
-            
+
+
             multi_analysis_config = config.copy()
             multi_analysis_config["max_debate_rounds"] = 1
 
             for i, ticker in enumerate(selected_tickers):
                 asset_type = detect_asset_type(ticker)
-                status_text.info(T["status_analyzing"].format(ticker=ticker, asset_type=asset_type, i=i+1, total=len(selected_tickers)))
+                status_text.info(T["status_analyzing"].format(ticker=ticker, asset_type=asset_type, i=i + 1,
+                                                              total=len(selected_tickers)))
                 log_expander.write(f"--- Starting analysis for {ticker} ---")
-                
+
                 try:
                     selected_analysts = get_analysts_for_asset(asset_type)
                     ta = TradingAgentsGraph(
-                        debug=False, 
-                        config=multi_analysis_config, 
+                        debug=False,
+                        config=multi_analysis_config,
                         selected_analysts=selected_analysts,
                         log_callback=log_to_streamlit,
                         language=st.session_state.lang
                     )
                     formatted_date = analysis_date.strftime("%Y-%m-%d")
-                    
+
                     state, decision = ta.propagate(ticker, formatted_date)
-                    results[ticker] = {"asset_type": asset_type, "state": state, "decision": decision, "status": "success"}
+                    results[ticker] = {"asset_type": asset_type, "state": state, "decision": decision,
+                                       "status": "success"}
                     log_expander.write(f"--- Finished analysis for {ticker} ---")
-                    
+
                 except Exception as e:
                     results[ticker] = {"asset_type": asset_type, "error": str(e), "status": "error"}
                     log_expander.write(f"--- Error analyzing {ticker} ---")
-                
+
                 progress_bar.progress((i + 1) / len(selected_tickers))
-            
+
             # 多资产分析完成后，重新创建日志expander，但默认收起
             # 替换占位符中的expander为收起状态
             log_placeholder.empty()
@@ -546,12 +573,12 @@ if run_analysis:
                 log_expander.write(msg)
             # 触发一次自动滚动，确保日志显示在底部
             update_auto_scroll()
-            
+
             status_text.empty()
             st.success(T["multiple_analysis_completed"])
-            
+
             st.subheader(T["decision_summary"])
-            
+
             summary_data = []
             for ticker, result in results.items():
                 if result["status"] == "success":
@@ -569,9 +596,9 @@ if run_analysis:
                         T["summary_action"]: "Error", T["summary_confidence"]: "N/A",
                         T["summary_status"]: T["summary_error"]
                     })
-            
+
             st.dataframe(summary_data)
-            
+
             st.subheader(T["detailed_analysis_by_asset"])
 
             for ticker, result in results.items():
@@ -584,7 +611,8 @@ if run_analysis:
                         st.subheader(T["final_decision"].format(ticker=ticker))
                         if decision:
                             if isinstance(decision, str):
-                                decision_color = {"BUY": "green", "SELL": "red", "HOLD": "orange"}.get(decision.upper(), "blue")
+                                decision_color = {"BUY": "green", "SELL": "red", "HOLD": "orange"}.get(decision.upper(),
+                                                                                                       "blue")
                                 st.markdown(f"### :{decision_color}[{decision.upper()}]")
                             elif isinstance(decision, dict):
                                 st.json(decision)
@@ -598,13 +626,13 @@ if run_analysis:
 
                         with st.expander(T["market_analysis"]):
                             st.write(state.get("market_report", T["no_results"]))
-                        
+
                         with st.expander(T["social_analysis"]):
                             st.write(state.get("sentiment_report", T["no_results"]))
-                        
+
                         with st.expander(T["news_analysis"]):
                             st.write(state.get("news_report", T["no_results"]))
-                        
+
                         if state.get("fundamentals_report"):
                             with st.expander(T["fundamentals_analysis"]):
                                 st.write(state.get("fundamentals_report", T["fundamentals_na"]))
@@ -612,7 +640,7 @@ if run_analysis:
                         with st.expander(T["researcher_debate"]):
                             investment_debate = state.get("investment_debate_state", {})
                             st.write(investment_debate.get("judge_decision", T["no_results"]))
-                        
+
                         with st.expander(T["trader_proposal"]):
                             st.write(state.get("trader_investment_plan", T["no_results"]))
 
@@ -620,4 +648,5 @@ if run_analysis:
                             risk_debate = state.get("risk_debate_state", {})
                             st.write(risk_debate.get("judge_decision", T["no_results"]))
                     else:
-                        st.error(T["error_analyzing_ticker"].format(ticker=ticker, error=result.get('error', 'Unknown error')))
+                        st.error(T["error_analyzing_ticker"].format(ticker=ticker,
+                                                                    error=result.get('error', 'Unknown error')))
