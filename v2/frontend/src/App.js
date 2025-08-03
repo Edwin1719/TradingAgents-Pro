@@ -138,7 +138,7 @@ function App() {
                     <Form.Control
                       type="text"
                       name="deep_think_llm"
-                      placeholder="e.g., gpt-4o"
+                      placeholder="Default: gpt-4o"
                       value={form.deep_think_llm}
                       onChange={handleInputChange}
                     />
@@ -148,7 +148,7 @@ function App() {
                     <Form.Control
                       type="text"
                       name="quick_think_llm"
-                      placeholder="e.g., gpt-4o-mini"
+                      placeholder="Default: gpt-4o"
                       value={form.quick_think_llm}
                       onChange={handleInputChange}
                     />
