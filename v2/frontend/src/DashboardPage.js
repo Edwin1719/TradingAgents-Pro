@@ -6,6 +6,7 @@ import {
 import { FaRobot, FaChartLine, FaSignOutAlt } from 'react-icons/fa';
 import axios from 'axios';
 
+
 // Create an Axios instance for API requests
 const apiClient = axios.create({
   baseURL: '/api',
@@ -98,10 +99,10 @@ function DashboardPage() {
     if (!result) return null;
     const decision = result.final_trade_decision || {};
     return (
-      <ListGroup>
-        <ListGroup.Item>
-          <strong>Final Decision:</strong>{' '}
-          <Badge bg={decision.action === 'STRONG_BUY' ? 'success' : 'danger'}>
+      <ListGroup variant="flush">
+        <ListGroup.Item className="d-flex justify-content-between align-items-center">
+          <strong>Final Decision:</strong>
+          <Badge bg={decision.action === 'STRONG_BUY' ? 'success' : 'danger'} pill>
             {decision.action}
           </Badge>
         </ListGroup.Item>
@@ -116,25 +117,25 @@ function DashboardPage() {
   };
 
   return (
-    <>
-      <Navbar bg="dark" variant="dark" expand="lg">
-        <Container>
+    <div className="dashboard-container">
+      <Navbar bg="light" variant="light" expand="lg" className="dashboard-nav">
+        <Container fluid>
           <Navbar.Brand href="#home">
             <FaRobot className="me-2" /> Trading Agents Pro
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
-            <Button variant="outline-light" onClick={handleLogout}>
+            <Button variant="outline-primary" onClick={handleLogout}>
               <FaSignOutAlt className="me-2" /> Logout
             </Button>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
-      <Container className="mt-4">
+      <Container fluid className="mt-4">
         <Row>
-          <Col md={4}>
-            <Card>
+          <Col md={4} lg={3}>
+            <Card className="control-panel-card">
               <Card.Header>
                 <FaChartLine className="me-2" />
                 New Analysis Task
@@ -162,7 +163,7 @@ function DashboardPage() {
                     />
                   </Form.Group>
                   <Form.Group className="mb-3">
-                    <Form.Label>Deep Think LLM (Optional)</Form.Label>
+                    <Form.Label>Deep Think LLM</Form.Label>
                     <Form.Control
                       type="text"
                       name="deep_think_llm"
@@ -172,7 +173,7 @@ function DashboardPage() {
                     />
                   </Form.Group>
                   <Form.Group className="mb-3">
-                    <Form.Label>Quick Think LLM (Optional)</Form.Label>
+                    <Form.Label>Quick Think LLM</Form.Label>
                     <Form.Control
                       type="text"
                       name="quick_think_llm"
@@ -181,7 +182,7 @@ function DashboardPage() {
                       onChange={handleInputChange}
                     />
                   </Form.Group>
-                  <Button variant="primary" type="submit" disabled={loading}>
+                  <Button variant="primary" type="submit" disabled={loading} className="w-100">
                     {loading ? <Spinner as="span" animation="border" size="sm" /> : 'Run Analysis'}
                   </Button>
                 </Form>
@@ -189,35 +190,39 @@ function DashboardPage() {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={8}>
-            <h2>Analysis Tasks</h2>
-            {Object.values(tasks).length === 0 ? (
-              <p>No tasks submitted yet.</p>
-            ) : (
-              Object.values(tasks).map(task => (
-                <Card key={task.id} className="mb-3">
-                  <Card.Header>
-                    Task ID: {task.id} | Ticker: {task.ticker}
-                  </Card.Header>
-                  <Card.Body>
-                    <Card.Title>Status: {task.status}</Card.Title>
-                    {task.status === 'PENDING' || task.status === 'STARTED' || task.status === 'PROCESSING' ? (
-                      <Spinner animation="border" />
-                    ) : task.status === 'SUCCESS' ? (
-                      renderResult(task.result)
-                    ) : (
-                      <Alert variant="danger">
-                        Task Failed: {task.result ? JSON.stringify(task.result) : 'Unknown error'}
-                      </Alert>
-                    )}
-                  </Card.Body>
-                </Card>
-              ))
-            )}
+          <Col md={8} lg={9}>
+            <h2 className="tasks-title">Analysis Tasks</h2>
+            <div className="tasks-grid">
+              {Object.values(tasks).length === 0 ? (
+                <p className="text-muted">No tasks submitted yet.</p>
+              ) : (
+                Object.values(tasks).map(task => (
+                  <Card key={task.id} className="task-card">
+                    <Card.Header className="d-flex justify-content-between align-items-center">
+                      <span>Task ID: {task.id}</span>
+                      <span>Ticker: <strong>{task.ticker}</strong></span>
+                    </Card.Header>
+                    <Card.Body>
+                      <div className="task-status-wrapper">
+                        <Card.Title>Status: {task.status}</Card.Title>
+                        {(task.status === 'PENDING' || task.status === 'STARTED' || task.status === 'PROCESSING') && <Spinner animation="border" />}
+                      </div>
+                      {task.status === 'SUCCESS' ? (
+                        renderResult(task.result)
+                      ) : task.status === 'FAILURE' ? (
+                        <Alert variant="danger">
+                          Task Failed: {task.result ? JSON.stringify(task.result) : 'Unknown error'}
+                        </Alert>
+                      ) : null}
+                    </Card.Body>
+                  </Card>
+                ))
+              )}
+            </div>
           </Col>
         </Row>
       </Container>
-    </>
+    </div>
   );
 }
 

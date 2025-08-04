@@ -1,38 +1,142 @@
-.App {
-  text-align: center;
+/* Global Styles */
+body {
+  background-color: #f0f2f5; /* Light grey background */
+  color: #1c1e21; /* Dark text color */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+/* Auth Page Styles */
+.auth-container {
+  background: #f0f2f5;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 1rem;
 }
 
-.App-link {
-  color: #61dafb;
+.auth-card {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.auth-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #212529;
+}
+
+.auth-card .form-control {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  color: #212529;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.auth-card .form-control:focus {
+  background-color: #ffffff;
+  color: #212529;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.auth-card .btn-primary {
+  background-color: #0d6efd;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-weight: 600;
+}
+
+.auth-link {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* Dashboard Styles */
+.dashboard-container {
+  background-color: #f8f9fa;
+  color: #212529;
+  min-height: 100vh;
+}
+
+.dashboard-nav {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,.04);
+}
+
+.control-panel-card, .task-card {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,.04);
+}
+
+.control-panel-card .card-header, .task-card .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+}
+
+.control-panel-card .form-control {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  color: #212529;
+  border-radius: 6px;
+}
+
+.control-panel-card .form-control:focus {
+  background-color: #ffffff;
+  color: #212529;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.control-panel-card .btn-primary {
+  background-color: #0d6efd;
+  border: none;
+  font-weight: 600;
+}
+
+.tasks-title {
+  margin-bottom: 1.5rem;
+  color: #343a40;
+}
+
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.task-status-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.task-card .list-group-item {
+  background-color: #ffffff;
+  border-color: #dee2e6;
+  color: #212529;
 }
