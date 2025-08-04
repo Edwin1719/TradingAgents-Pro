@@ -16,6 +16,7 @@ SQLAlchemy
 passlib[bcrypt]
 python-jose[cryptography]
 alembic
+python-multipart
 
 # Data Processing
 pandas>=2.0.0
