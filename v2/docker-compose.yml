@@ -35,10 +35,10 @@ services:
       - OPENAI_API_BASE=your_openai_api_base_here # IMPORTANT: Replace with your actual URL
 
   nginx:
-    image: nginx:1.25-alpine
+    build: ./frontend
     restart: always
     ports:
-      - "80:80"
+      - "8000:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
