@@ -3,15 +3,13 @@ version: '3.8'
 services:
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    restart: always
 
   backend:
     build: ./backend
-    ports:
-      - "8000:8000"
+    restart: always
     volumes:
-      - ./backend:/app # Mount the entire backend directory
+      - ./backend:/app
     depends_on:
       - redis
     environment:
@@ -20,13 +18,13 @@ services:
       - OPENAI_API_KEY=your_openai_api_key_here # IMPORTANT: Replace with your actual key
       - FINNHUB_API_KEY=your_finnhub_api_key_here # IMPORTANT: Replace with your actual key
       - OPENAI_API_BASE=your_openai_api_base_here # IMPORTANT: Replace with your actual URL
-      # Add other necessary API keys here
 
   worker:
     build: ./backend
+    restart: always
     command: celery -A app.celery_worker.celery_app worker --loglevel=info
     volumes:
-      - ./backend:/app # Mount the entire backend directory
+      - ./backend:/app
     depends_on:
       - redis
     environment:
@@ -35,4 +33,13 @@ services:
       - OPENAI_API_KEY=your_openai_api_key_here # IMPORTANT: Replace with your actual key
       - FINNHUB_API_KEY=your_finnhub_api_key_here # IMPORTANT: Replace with your actual key
       - OPENAI_API_BASE=your_openai_api_base_here # IMPORTANT: Replace with your actual URL
-      # Add other necessary API keys here
+
+  nginx:
+    image: nginx:1.25-alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
