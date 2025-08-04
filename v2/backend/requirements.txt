@@ -12,6 +12,10 @@ uvicorn[standard]
 celery
 redis
 pydantic
+SQLAlchemy
+passlib[bcrypt]
+python-jose[cryptography]
+alembic
 
 # Data Processing
 pandas>=2.0.0
