@@ -12,6 +12,23 @@ from .celery_worker import celery_app
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
 
+def clean_state_for_json(state):
+    """
+    Recursively cleans a state dictionary to make it JSON serializable.
+    Converts any non-serializable objects (like HumanMessage) to their string representation.
+    """
+    if isinstance(state, dict):
+        return {k: clean_state_for_json(v) for k, v in state.items()}
+    elif isinstance(state, list):
+        return [clean_state_for_json(i) for i in state]
+    elif hasattr(state, '__dict__'):
+        # This will handle most custom objects, including HumanMessage,
+        # by converting them to a string representation.
+        return str(state)
+    else:
+        # For basic types that are already JSON serializable
+        return state
+
 @celery_app.task(bind=True)
 def run_analysis_task(self, ticker: str, date: str, deep_think_llm: Optional[str] = None, quick_think_llm: Optional[str] = None):
     """
@@ -61,8 +78,11 @@ def run_analysis_task(self, ticker: str, date: str, deep_think_llm: Optional[str
 
         print(f"[Celery Task] Analysis for {ticker} completed.")
         
-        # The result of the task is the final state from the graph
-        return final_state
+        # Clean the final_state to ensure it's JSON serializable
+        cleaned_state = clean_state_for_json(final_state)
+        
+        # The result of the task is the cleaned final state from the graph
+        return cleaned_state
 
     except Exception as e:
         print(f"[Celery Task] An error occurred during analysis: {e}")
