@@ -182,6 +182,11 @@ div[data-testid="stExpander"] > details > div {
     border: none !important;
     display: none !important;
 }
+
+/* 隐藏特定的菜单项 */
+#bui1 > div > div > ul:nth-child(1) > ul:nth-child(7) {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
