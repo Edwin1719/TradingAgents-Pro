@@ -1,142 +1,158 @@
-/* Global Styles */
-body {
-  background-color: #f0f2f5; /* Light grey background */
-  color: #1c1e21; /* Dark text color */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+/* ---
+Modern Fintech UI Style
+--- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --background-color: #F7F8FC;
+  --card-background-color: #FFFFFF;
+  --text-primary-color: #2D3748;
+  --text-secondary-color: #718096;
+  --primary-accent-color: #4A90E2;
+  --primary-accent-hover-color: #357ABD;
+  --border-color: #E2E8F0;
+  --input-background-color: #F7F8FC;
+  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Auth Page Styles */
-.auth-container {
-  background: #f0f2f5;
+body {
+  background-color: var(--background-color);
+  color: var(--text-primary-color);
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- Auth Page Layout --- */
+.auth-wrapper {
+  display: flex;
   min-height: 100vh;
+}
+
+.auth-brand-panel {
+  width: 45%;
+  background: linear-gradient(135deg, #4A90E2 0%, #2575FC 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  position: relative; /* Required for absolute positioning of child icons */
+  overflow: hidden; /* Hide parts of icons that float outside the panel */
+}
+
+.auth-brand-panel > * {
+  position: relative; /* Ensure main content stays above the floating icons */
+  z-index: 2;
+}
+
+.auth-brand-panel h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-top: 1rem;
+}
+
+.auth-form-panel {
+  width: 55%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 3rem;
 }
 
 .auth-card {
-  background: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #dee2e6;
-  padding: 2.5rem;
   width: 100%;
-  max-width: 450px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.auth-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-  color: #212529;
-}
-
-.auth-card .form-control {
-  background-color: #f8f9fa;
-  border: 1px solid #ced4da;
-  color: #212529;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-}
-
-.auth-card .form-control:focus {
-  background-color: #ffffff;
-  color: #212529;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.auth-card .btn-primary {
-  background-color: #0d6efd;
+  max-width: 420px;
   border: none;
-  border-radius: 6px;
-  padding: 0.75rem;
+  background: transparent;
+}
+
+.auth-card h2 {
   font-weight: 600;
+  font-size: 2rem;
+  margin-bottom: 2rem;
 }
 
-.auth-link {
-  color: #0d6efd;
-  text-decoration: none;
+.form-control {
+  background-color: var(--input-background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 1rem;
 }
 
-.auth-link:hover {
-  text-decoration: underline;
+.form-control:focus {
+  background-color: var(--card-background-color);
+  border-color: var(--primary-accent-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
 
-/* Dashboard Styles */
-.dashboard-container {
-  background-color: #f8f9fa;
-  color: #212529;
-  min-height: 100vh;
+.btn-primary {
+  background-color: var(--primary-accent-color);
+  border-color: var(--primary-accent-color);
+  border-radius: 8px;
+  padding: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
 }
 
+.btn-primary:hover {
+  background-color: var(--primary-accent-hover-color);
+  border-color: var(--primary-accent-hover-color);
+}
+
+/* --- Dashboard --- */
 .dashboard-nav {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #dee2e6;
-  box-shadow: 0 2px 4px rgba(0,0,0,.04);
+  background-color: var(--card-background-color) !important;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
 }
 
 .control-panel-card, .task-card {
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,.04);
+  background-color: var(--card-background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
 }
 
-.control-panel-card .card-header, .task-card .card-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-color);
   font-weight: 600;
-}
-
-.control-panel-card .form-control {
-  background-color: #f8f9fa;
-  border: 1px solid #ced4da;
-  color: #212529;
-  border-radius: 6px;
-}
-
-.control-panel-card .form-control:focus {
-  background-color: #ffffff;
-  color: #212529;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.control-panel-card .btn-primary {
-  background-color: #0d6efd;
-  border: none;
-  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .tasks-title {
+  font-weight: 600;
   margin-bottom: 1.5rem;
-  color: #343a40;
 }
 
-.tasks-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+/* --- Floating Icons for Auth Panel --- */
+.floating-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Icons should not be interactive */
 }
 
-.task-status-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+.floating-icon {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.15); /* Subtle white icons */
+  animation: float 30s infinite linear;
+  will-change: transform;
 }
 
-.task-card .list-group-item {
-  background-color: #ffffff;
-  border-color: #dee2e6;
-  color: #212529;
+.floating-icon.i-1 { font-size: 80px; top: 15%; left: 10%; animation-duration: 35s; }
+.floating-icon.i-2 { font-size: 40px; top: 20%; right: 15%; animation-duration: 45s; animation-delay: -5s; }
+.floating-icon.i-3 { font-size: 60px; bottom: 10%; left: 20%; animation-duration: 25s; }
+.floating-icon.i-4 { font-size: 70px; bottom: 15%; right: 25%; animation-duration: 40s; animation-delay: -10s; }
+.floating-icon.i-5 { font-size: 30px; top: 60%; left: 50%; animation-duration: 50s; animation-delay: -15s; }
+.floating-icon.i-6 { font-size: 50px; top: 5%; right: 40%; animation-duration: 38s; }
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-25px) rotate(180deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
 }
