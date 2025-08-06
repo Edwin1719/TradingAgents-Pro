@@ -10,9 +10,9 @@ from tradingagents.default_config import DEFAULT_CONFIG
 # --- Translation Dictionary ---
 translations = {
     "en": {
-        "page_title": "AI Trading Agent",
-        "title": "🤖 AI Trading Agent for Financial Assets",
-        "description": "This application uses a team of AI agents to analyze the asset market and propose a trading decision. Enter your API keys and analysis parameters to get started.",
+        "page_title": "AI Trading Agents",
+        "title": "🤖 AI Trading Agents Team",
+        "description": "A multi-agent team of AI trading experts focused on traditional finance and cryptocurrency trading, equipped with capabilities in research and analysis, data cleaning, information summarization, opinion debate, and trading decision-making\n\n专注于传统金融与加密货币交易的多智能体团队，具备调研分析、数据清洗、信息总结、观点辩论及交易决策能力的AI交易专家",
         "api_config_header": "🔑 API Configuration",
         "openai_api_key": "OpenAI API Key",
         "openai_api_base": "OpenAI API Base URL",
