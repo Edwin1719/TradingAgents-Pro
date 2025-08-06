@@ -77,7 +77,7 @@ translations = {
     "zh": {
         "page_title": "AI 交易代理",
         "title": "🤖 AI 金融资产交易代理",
-        "description": "专注于传统金融与加密货币交易的多智能体团队，具备调研分析、数据清洗、信息总结、观点辩论及交易决策能力的AI交易专家",
+        "description": "专注于传统金融与加密货币交易的多智能体团队，具备调研分析、数据清洗、信息总结、观点辩论及交易决策能力的AI交易专家。",
         "api_config_header": "🔑 API 配置",
         "openai_api_key": "OpenAI API 密钥",
         "openai_api_base": "OpenAI API 基础 URL",
