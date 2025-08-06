@@ -12,7 +12,7 @@ translations = {
     "en": {
         "page_title": "AI Trading Agents",
         "title": "🤖 AI Trading Agents Team",
-        "description": "A multi-agent team of AI trading experts focused on traditional finance and cryptocurrency trading, equipped with capabilities in research and analysis, data cleaning, information summarization, opinion debate, and trading decision-making\n\n专注于传统金融与加密货币交易的多智能体团队，具备调研分析、数据清洗、信息总结、观点辩论及交易决策能力的AI交易专家",
+        "description": "A multi-agent team of AI trading experts focused on traditional finance and cryptocurrency trading, equipped with capabilities in research and analysis, data cleaning, information summarization, opinion debate, and trading decision-making.",
         "api_config_header": "🔑 API Configuration",
         "openai_api_key": "OpenAI API Key",
         "openai_api_base": "OpenAI API Base URL",
@@ -77,7 +77,7 @@ translations = {
     "zh": {
         "page_title": "AI 交易代理",
         "title": "🤖 AI 金融资产交易代理",
-        "description": "专注于传统金融与加密货币交易的多智能体团队，具备调研分析、数据清洗、信息总结、观点辩论及交易决策能力的AI交易专家\n\nA multi-agent team of AI trading experts focused on traditional finance and cryptocurrency trading, equipped with capabilities in research and analysis, data cleaning, information summarization, opinion debate, and trading decision-making",
+        "description": "专注于传统金融与加密货币交易的多智能体团队，具备调研分析、数据清洗、信息总结、观点辩论及交易决策能力的AI交易专家",
         "api_config_header": "🔑 API 配置",
         "openai_api_key": "OpenAI API 密钥",
         "openai_api_base": "OpenAI API 基础 URL",
